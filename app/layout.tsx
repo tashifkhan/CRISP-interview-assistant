@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +25,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-neutral-50 text-neutral-900`}>        
+        <div className="flex flex-col min-h-screen">
+          <header className="border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-40">
+            <div className="mx-auto max-w-6xl px-4 h-14 flex items-center gap-6">
+              <Link href="/" className="font-semibold text-lg tracking-tight">CRISP</Link>
+              <nav className="flex items-center gap-4 text-sm">
+                <Link href="/interviewee" className="hover:text-blue-600 transition-colors">Interviewee</Link>
+                <Link href="/interviewer" className="hover:text-blue-600 transition-colors">Interviewer</Link>
+              </nav>
+            </div>
+          </header>
+          <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-8">{children}</main>
+          <footer className="border-t py-6 text-center text-xs text-neutral-500 bg-white/50 backdrop-blur">
+            CRISP Interview Assistant &middot; Early Prototype
+          </footer>
+        </div>
       </body>
     </html>
   );
