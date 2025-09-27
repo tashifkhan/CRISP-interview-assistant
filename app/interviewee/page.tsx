@@ -36,7 +36,10 @@ export default function IntervieweePage() {
 
 	// Detect unfinished session on mount
 	useEffect(() => {
-		if (interview.status === 'in-progress' || interview.status === 'collecting-profile') {
+		if (
+			interview.status === "in-progress" ||
+			interview.status === "collecting-profile"
+		) {
 			setShowResumeModal(true);
 		}
 	}, []);
@@ -68,7 +71,7 @@ export default function IntervieweePage() {
 
 	// Timer effect and auto-advance with persisted remainingMs
 	useEffect(() => {
-		if (interview.status !== 'in-progress' || !current) return;
+		if (interview.status !== "in-progress" || !current) return;
 		if (!current.startedAt) return;
 		const interval = setInterval(() => {
 			dispatch(tickTimer());
@@ -78,8 +81,10 @@ export default function IntervieweePage() {
 
 	// Watch current question remainingMs to determine auto-advance
 	useEffect(() => {
-		if (interview.status !== 'in-progress' || !current) return;
-		const remaining = current.remainingMs ?? (current.allottedMs - (Date.now() - (current.startedAt || Date.now())));
+		if (interview.status !== "in-progress" || !current) return;
+		const remaining =
+			current.remainingMs ??
+			current.allottedMs - (Date.now() - (current.startedAt || Date.now()));
 		setRemainingMs(remaining);
 		if (remaining <= 0) {
 			if (!current.answer && answerDraft) {
@@ -210,15 +215,31 @@ export default function IntervieweePage() {
 			{showResumeModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
 					<div className="w-full max-w-md rounded-lg bg-white shadow-lg border p-6 space-y-4">
-						<h2 className="text-lg font-semibold tracking-tight">Welcome Back</h2>
+						<h2 className="text-lg font-semibold tracking-tight">
+							Welcome Back
+						</h2>
 						<p className="text-sm text-neutral-600">
-							An unfinished interview session was found. Would you like to resume where you left off?
+							An unfinished interview session was found. Would you like to
+							resume where you left off?
 						</p>
 						<div className="flex gap-3 justify-end">
-							<Button variant="ghost" size="sm" onClick={() => { setShowResumeModal(false); }}>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => {
+									setShowResumeModal(false);
+								}}
+							>
 								Resume
 							</Button>
-							<Button variant="outline" size="sm" onClick={() => { localStorage.clear(); location.reload(); }}>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									localStorage.clear();
+									location.reload();
+								}}
+							>
 								Start Over
 							</Button>
 						</div>
@@ -356,11 +377,15 @@ export default function IntervieweePage() {
 						<CardTitle className="text-sm">Interview Complete</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
-						<p className="text-sm">Final Score: {interview.finalScore ?? '—'}</p>
-						<p className="text-sm whitespace-pre-line bg-neutral-50 border rounded p-3 min-h-[60px]">
-							{interview.summary || 'Generating summary...'}
+						<p className="text-sm">
+							Final Score: {interview.finalScore ?? "—"}
 						</p>
-						<Button size="sm" onClick={() => location.reload()}>Start New Session</Button>
+						<p className="text-sm whitespace-pre-line bg-neutral-50 border rounded p-3 min-h-[60px]">
+							{interview.summary || "Generating summary..."}
+						</p>
+						<Button size="sm" onClick={() => location.reload()}>
+							Start New Session
+						</Button>
 					</CardContent>
 				</Card>
 			)}
