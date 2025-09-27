@@ -1,8 +1,23 @@
+"use client";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import WorkflowChart from "@/components/flow/WorkflowChart";
 
 export default function Home() {
+	const [svg, setSvg] = useState("");
+	function downloadSvg() {
+		if (!svg) return;
+		const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = "crisp-workflow.svg";
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+	function openFull() {
+		window.open("/workflow", "_blank");
+	}
 	return (
 		<div className="space-y-20 py-12">
 			<section className="relative max-w-6xl mx-auto px-6 text-center space-y-8">
@@ -68,12 +83,29 @@ export default function Home() {
 						interviewer analytics.
 					</p>
 				</div>
+				<div className="flex items-center justify-end gap-3 pt-1">
+					<button
+						onClick={openFull}
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-white/10 hover:bg-white/20 border border-white/10 text-white"
+						aria-label="Open full workflow"
+					>
+						Open Full
+					</button>
+					<button
+						onClick={downloadSvg}
+						disabled={!svg}
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-blue-600 enabled:hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow"
+						aria-label="Download workflow SVG"
+					>
+						Download SVG
+					</button>
+				</div>
 				<Suspense
 					fallback={
 						<div className="h-[420px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />
 					}
 				>
-					<WorkflowChart />
+					<WorkflowChart onSvg={setSvg} />
 				</Suspense>
 			</section>
 
