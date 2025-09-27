@@ -25,39 +25,32 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-neutral-50 text-neutral-900`}
-			>
-				<div className="flex flex-col min-h-screen">
-					<header className="border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-40">
-						<div className="mx-auto max-w-6xl px-4 h-14 flex items-center gap-6">
-							<Link href="/" className="font-semibold text-lg tracking-tight">
-								CRISP
+		<html lang="en" suppressHydrationWarning>
+			<body className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans`}> 
+				<div className="relative flex flex-col min-h-screen">
+					{/* Subtle radial accent */}
+					<div className="pointer-events-none absolute inset-0 [background:radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.12),transparent_55%)]" />
+					<header className="sticky top-0 z-40 backdrop-blur border-b border-white/10 bg-black/30 supports-[backdrop-filter]:bg-black/25">
+						<div className="mx-auto max-w-6xl px-5 h-16 flex items-center gap-8">
+							<Link href="/" className="relative font-semibold text-lg tracking-tight text-white">
+								<span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-blue-300">CRISP</span>
 							</Link>
-							<nav className="flex items-center gap-4 text-sm">
-								<Link
-									href="/interviewee"
-									className="hover:text-blue-600 transition-colors"
-								>
-									Interviewee
-								</Link>
-								<Link
-									href="/interviewer"
-									className="hover:text-blue-600 transition-colors"
-								>
-									Interviewer
-								</Link>
+							<nav className="flex items-center gap-5 text-sm text-neutral-300">
+								<Link href="/interviewee" className="hover:text-white transition-colors">Interviewee</Link>
+								<Link href="/interviewer" className="hover:text-white transition-colors">Interviewer</Link>
 							</nav>
+							<div className="ml-auto flex items-center gap-3">
+								<a href="https://github.com" target="_blank" className="text-xs text-neutral-400 hover:text-white transition-colors">GitHub</a>
+							</div>
 						</div>
 					</header>
 					<StoreProvider>
-						<main className="flex-1 mx-auto w-full max-w-6xl px-4 py-8">
+						<main className="flex-1 mx-auto w-full max-w-6xl px-5 py-10 animate-fade-in-up space-y-10">
 							{children}
 						</main>
 					</StoreProvider>
-					<footer className="border-t py-6 text-center text-xs text-neutral-500 bg-white/50 backdrop-blur">
-						CRISP Interview Assistant &middot; Early Prototype
+					<footer className="mt-10 py-8 text-center text-[11px] text-neutral-400 border-t border-white/10 bg-black/30 backdrop-blur">
+						<span className="tracking-wide">CRISP Interview Assistant · <span className="text-neutral-500">Prototype</span></span>
 					</footer>
 				</div>
 			</body>

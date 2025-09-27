@@ -18,6 +18,7 @@ import {
 import { RootState } from "@/store";
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 export default function IntervieweePage() {
@@ -211,7 +212,7 @@ export default function IntervieweePage() {
 	);
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-8">
 			{showResumeModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
 					<div className="w-full max-w-md rounded-lg bg-white shadow-lg border p-6 space-y-4">
@@ -246,20 +247,24 @@ export default function IntervieweePage() {
 					</div>
 				</div>
 			)}
-			<div>
-				<h1 className="text-2xl font-semibold tracking-tight">
-					Interviewee Workspace
+			<div className="space-y-3">
+				<h1 className="text-3xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-blue-300">
+					Interview Session
 				</h1>
-				<p className="text-sm text-neutral-600 max-w-prose mt-1">
-					Upload a resume to begin. Missing profile fields will be collected
-					before the interview starts.
+				<p className="text-sm text-neutral-400 max-w-prose">
+					Upload your resume to parse key profile details. You can resume an unfinished session at any time.
 				</p>
+				<div className="flex flex-wrap gap-2 text-[10px] font-medium">
+					<Badge variant="secondary" className="bg-white/10 text-neutral-200 border-white/10">Adaptive</Badge>
+					<Badge variant="secondary" className="bg-white/10 text-neutral-200 border-white/10">Timed</Badge>
+					<Badge variant="secondary" className="bg-white/10 text-neutral-200 border-white/10">Gemini AI</Badge>
+				</div>
 			</div>
-			<Card>
+			<Card className="glass-surface">
 				<CardHeader>
-					<CardTitle className="text-sm">1. Resume Upload</CardTitle>
+					<CardTitle className="text-sm font-medium text-neutral-200">1 · Resume Upload</CardTitle>
 				</CardHeader>
-				<CardContent className="space-y-3">
+				<CardContent className="space-y-4">
 					<Input
 						type="file"
 						accept="application/pdf,.pdf,.docx"
@@ -269,22 +274,22 @@ export default function IntervieweePage() {
 							if (f) onFile(f);
 						}}
 					/>
-					{parseError && <p className="text-xs text-red-600">{parseError}</p>}
+					{parseError && <p className="text-xs text-red-400">{parseError}</p>}
 					{interview.profile.resumeExtracted && (
-						<p className="text-xs text-green-600">Resume parsed.</p>
+						<p className="text-xs text-emerald-400">Resume parsed.</p>
 					)}
 				</CardContent>
 			</Card>
 			{interview.status === "collecting-profile" && (
-				<Card>
+				<Card className="glass-surface">
 					<CardHeader>
-						<CardTitle className="text-sm">2. Profile Confirmation</CardTitle>
+						<CardTitle className="text-sm font-medium text-neutral-200">2 · Profile Confirmation</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						<div className="grid gap-3 sm:grid-cols-3">
+						<div className="grid gap-4 sm:grid-cols-3">
 							{(["name", "email", "phone"] as const).map((field) => (
 								<div key={field} className="space-y-1">
-									<label className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+									<label className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
 										{field}
 									</label>
 									<Input
@@ -300,13 +305,14 @@ export default function IntervieweePage() {
 							))}
 						</div>
 						{missingFields.length > 0 && (
-							<p className="text-xs text-amber-600">
+							<p className="text-xs text-amber-400">
 								Missing: {missingFields.join(", ")}
 							</p>
 						)}
 						<Button
 							disabled={missingFields.length > 0}
 							onClick={() => dispatch(beginInterview())}
+							className="bg-blue-600 hover:bg-blue-500 text-white shadow"
 						>
 							Begin Interview
 						</Button>
@@ -314,37 +320,45 @@ export default function IntervieweePage() {
 				</Card>
 			)}
 			{interview.status === "in-progress" && (
-				<Card>
+				<Card className="glass-surface">
 					<CardHeader>
-						<CardTitle className="text-sm flex items-center justify-between gap-4">
-							<span>3. Interview</span>
+						<CardTitle className="text-sm flex items-center justify-between gap-4 text-neutral-200">
+							<span>3 · Interview</span>
 							{current && (
-								<span className="text-[10px] font-mono text-neutral-500">
-									Time:{" "}
-									{remainingMs !== null
-										? Math.max(0, Math.ceil(remainingMs / 1000))
-										: "-"}
-									s
-								</span>
+								<div className="flex items-center gap-2">
+									<div className="h-1.5 w-28 bg-neutral-700/50 rounded overflow-hidden">
+										<div
+											className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all"
+											style={{
+												width: `$${'{'}(remainingMs && current.allottedMs ? ((remainingMs / current.allottedMs) * 100).toFixed(2) : 0)}%`
+											}}
+										/>
+									</div>
+									<span className="text-[10px] font-mono text-neutral-400">
+										{remainingMs !== null
+											? Math.max(0, Math.ceil(remainingMs / 1000))
+											: "-"}s
+									</span>
+								</div>
 							)}
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						{current ? (
 							<div className="space-y-2">
-								<p className="text-sm font-medium">
+								<p className="text-sm font-medium text-neutral-300">
 									Question {current.index + 1} of {interview.questions.length} (
 									{current.difficulty})
 								</p>
-								<p className="text-sm text-neutral-700 whitespace-pre-line border rounded-md p-3 bg-neutral-50 min-h-[60px]">
+								<p className="text-sm text-neutral-200 whitespace-pre-line soft-border rounded-md p-3 bg-white/5 min-h-[60px]">
 									{current.question || "Generating question..."}
 								</p>
 								<div className="space-y-1">
-									<label className="text-xs uppercase tracking-wide text-neutral-500">
+									<label className="text-[11px] uppercase tracking-wide text-neutral-400">
 										Your Answer
 									</label>
 									<textarea
-										className="w-full rounded-md border border-neutral-300 bg-white p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+										className="w-full rounded-md soft-border bg-white/5 text-neutral-100 placeholder:text-neutral-500 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:bg-white/10 transition"
 										value={answerDraft}
 										onChange={(e) => setAnswerDraft(e.target.value)}
 										rows={5}
@@ -358,6 +372,7 @@ export default function IntervieweePage() {
 										size="sm"
 										onClick={submitAnswer}
 										disabled={!answerDraft}
+										className="bg-blue-600 hover:bg-blue-500 text-white shadow"
 									>
 										Submit & Next
 									</Button>
@@ -372,26 +387,26 @@ export default function IntervieweePage() {
 				</Card>
 			)}
 			{interview.status === "completed" && (
-				<Card>
+				<Card className="glass-surface">
 					<CardHeader>
-						<CardTitle className="text-sm">Interview Complete</CardTitle>
+						<CardTitle className="text-sm text-neutral-200">Interview Complete</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
-						<p className="text-sm">
+						<p className="text-sm text-neutral-300">
 							Final Score: {interview.finalScore ?? "—"}
 						</p>
-						<p className="text-sm whitespace-pre-line bg-neutral-50 border rounded p-3 min-h-[60px]">
+						<p className="text-sm whitespace-pre-line bg-white/5 soft-border rounded p-3 min-h-[60px] text-neutral-200">
 							{interview.summary || "Generating summary..."}
 						</p>
-						<Button size="sm" onClick={() => location.reload()}>
+						<Button size="sm" onClick={() => location.reload()} className="bg-blue-600 hover:bg-blue-500 text-white">
 							Start New Session
 						</Button>
 					</CardContent>
 				</Card>
 			)}
 			<Separator />
-			<p className="text-[11px] text-neutral-400">
-				Prototype – Phase 2 will introduce AI question generation.
+			<p className="text-[11px] text-neutral-500 tracking-wide">
+				Prototype – Gemini AI & LangChain enabled.
 			</p>
 		</div>
 	);
