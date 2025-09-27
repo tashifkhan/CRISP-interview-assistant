@@ -34,7 +34,7 @@ const diagram = `flowchart TD
   Y --> Z[Generate Final Summary & Score]:::backend
   Z --> AA[Store Final Score Locally]:::frontend
   AA --> AB[Push Completed Interview to DB]:::frontend
-  AB --> AC[Save Record in MongoDB]:::backend:::database
+  AB --> AC[Save Record in MongoDB]:::database
   AC --> AD[Interview Complete Message]:::frontend
   AD --> AE([Interviewer Dashboard]):::frontend
   AE --> AF[Request All Candidates]:::frontend

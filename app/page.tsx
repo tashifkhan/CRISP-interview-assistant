@@ -68,9 +68,13 @@ export default function Home() {
 						interviewer analytics.
 					</p>
 				</div>
-						<Suspense fallback={<div className="h-[420px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />}> 
-							<WorkflowChart />
-						</Suspense>
+				<Suspense
+					fallback={
+						<div className="h-[420px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />
+					}
+				>
+					<WorkflowChart />
+				</Suspense>
 			</section>
 
 			<section className="max-w-6xl mx-auto px-6 pb-24">
