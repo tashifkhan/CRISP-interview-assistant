@@ -1,4 +1,13 @@
 import * as pdfjsLib from 'pdfjs-dist';
+// Ensure workerSrc is set (necessary in browser bundlers when using dynamic parsing)
+// @ts-ignore - pdfjs-dist types may not include GlobalWorkerOptions declaration path
+if (typeof window !== 'undefined' && (pdfjsLib as any).GlobalWorkerOptions) {
+  const worker = (pdfjsLib as any).GlobalWorkerOptions.workerSrc;
+  if (!worker) {
+    // Use unpkg CDN fallback or local copy (could later copy into /public)
+    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${(pdfjsLib as any).version || '4.4.168'}/build/pdf.worker.min.js`;
+  }
+}
 import mammoth from 'mammoth';
 
 export interface ParsedResumeData {
@@ -27,16 +36,21 @@ function extractEntities(text: string) {
 }
 
 export async function parsePdf(file: File): Promise<ParsedResumeData> {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let text = '';
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map((it: any) => (it.str || '')).join(' ') + '\n';
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = (pdfjsLib as any).getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map((it: any) => (it.str || '')).join(' ') + '\n';
+    }
+    const entities = extractEntities(text);
+    return { rawText: text, ...entities };
+  } catch (e: any) {
+    return { rawText: '', name: undefined, email: undefined, phone: undefined };
   }
-  const entities = extractEntities(text);
-  return { rawText: text, ...entities };
 }
 
 export async function parseDocx(file: File): Promise<ParsedResumeData> {
