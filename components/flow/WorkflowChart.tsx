@@ -72,7 +72,7 @@ export function WorkflowChart({
 			securityLevel: "loose",
 			themeVariables: {
 				primaryColor: "#222831",
-				primaryTextColor: "#EEEEEE", 
+				primaryTextColor: "#EEEEEE",
 				primaryBorderColor: "#00ADB5",
 				lineColor: "#00ADB5",
 				secondaryColor: "#393E46",
@@ -80,8 +80,8 @@ export function WorkflowChart({
 				background: "#222831",
 				mainBkg: "#222831",
 				secondBkg: "#393E46",
-				tertiaryBkg: "#393E46"
-			}
+				tertiaryBkg: "#393E46",
+			},
 		});
 		mermaid.render("workflowDiagram", diagram).then((res: any) => {
 			setHtml(res.svg);

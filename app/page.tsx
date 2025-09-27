@@ -25,23 +25,46 @@ export default function Home() {
 					CRISP · AI Interview Assistant
 				</h1>
 				<p className="text-[var(--foreground-muted)] max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
-					Structured, adaptive technical interviews powered by Gemini + LangChain. Timed Q&A, resume parsing, auto-scoring and instant summaries— resilient by design.
+					Structured, adaptive technical interviews powered by Gemini +
+					LangChain. Timed Q&A, resume parsing, auto-scoring and instant
+					summaries— resilient by design.
 				</p>
 				<div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-[10px] md:text-[11px] font-medium">
-					<span className="px-3 py-1 rounded-full badge-accent">Gemini + LangChain</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">Timed</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">Resume Parsing</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">Adaptive Ready</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">Heuristic Fallback</span>
+					<span className="px-3 py-1 rounded-full badge-accent">
+						Gemini + LangChain
+					</span>
+					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+						Timed
+					</span>
+					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+						Resume Parsing
+					</span>
+					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+						Adaptive Ready
+					</span>
+					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+						Heuristic Fallback
+					</span>
 				</div>
 				<div className="flex flex-wrap gap-4 justify-center pt-4">
-					<Link href="/interviewee" className="px-6 py-3 rounded-lg btn-accent text-sm font-medium shadow hover:shadow-lg transition-shadow">
+					<Link
+						href="/interviewee"
+						className="px-6 py-3 rounded-lg btn-accent text-sm font-medium shadow hover:shadow-lg transition-shadow"
+					>
 						Start Interview
 					</Link>
-					<Link href="/interviewer" className="px-6 py-3 rounded-lg bg-white/7 hover:bg-white/10 text-[var(--foreground)] text-sm font-medium border border-white/12 backdrop-blur-md">
+					<Link
+						href="/interviewer"
+						className="px-6 py-3 rounded-lg bg-white/7 hover:bg-white/10 text-[var(--foreground)] text-sm font-medium border border-white/12 backdrop-blur-md"
+					>
 						View Dashboard
 					</Link>
-					<a href="https://github.com/tashifkhan/CRISP-interview-assistant" target="_blank" rel="noopener noreferrer" className="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--foreground-muted)] text-sm font-medium border border-white/10">
+					<a
+						href="https://github.com/tashifkhan/CRISP-interview-assistant"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--foreground-muted)] text-sm font-medium border border-white/10"
+					>
 						GitHub
 					</a>
 				</div>
