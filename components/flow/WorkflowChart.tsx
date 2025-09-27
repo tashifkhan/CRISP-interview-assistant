@@ -47,10 +47,10 @@ const diagram = `flowchart TD
   AL --> AM[Show Candidate Detail View]:::frontend
   AJ -->|No| AH
   AM --> AN([END])
-  %% Class styles (Mermaid v11 syntax expects colons)
-  classDef frontend fill:#0f172a,stroke:#3b82f6,stroke-width:1px,color:#e2e8f0;
-  classDef backend fill:#1e293b,stroke:#f59e0b,stroke-width:1px,color:#f5f5f5;
-  classDef database fill:#172554,stroke:#fbbf24,stroke-width:1px,color:#f5f5f5;
+  %% Updated class styles using new brand palette
+  classDef frontend fill:#222831,stroke:#00ADB5,stroke-width:2px,color:#EEEEEE;
+  classDef backend fill:#393E46,stroke:#00ADB5,stroke-width:2px,color:#EEEEEE;
+  classDef database fill:#393E46,stroke:#00ADB5,stroke-width:3px,color:#EEEEEE;
 `;
 
 export interface WorkflowChartProps {
@@ -70,6 +70,18 @@ export function WorkflowChart({
 			startOnLoad: false,
 			theme: "dark",
 			securityLevel: "loose",
+			themeVariables: {
+				primaryColor: "#222831",
+				primaryTextColor: "#EEEEEE", 
+				primaryBorderColor: "#00ADB5",
+				lineColor: "#00ADB5",
+				secondaryColor: "#393E46",
+				tertiaryColor: "#222831",
+				background: "#222831",
+				mainBkg: "#222831",
+				secondBkg: "#393E46",
+				tertiaryBkg: "#393E46"
+			}
 		});
 		mermaid.render("workflowDiagram", diagram).then((res: any) => {
 			setHtml(res.svg);

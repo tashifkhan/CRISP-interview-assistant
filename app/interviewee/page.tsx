@@ -218,81 +218,90 @@ export default function IntervieweePage() {
 	);
 
 	return (
-		<div className="space-y-8">
+		<div className="max-w-4xl mx-auto space-y-12">
 			{showResumeModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/50">
-					<div className="w-full max-w-md glass-surface border border-[var(--border-color)] p-6 space-y-4 animate-fade-in-up">
-						<h2 className="text-lg font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300">
-							Resume Detected
-						</h2>
-						<p className="text-sm text-neutral-300 leading-relaxed">
-							We found an unfinished interview session. Continue where you left
-							off or start a fresh session.
-						</p>
-						<div className="flex gap-3 justify-end pt-2">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-xl bg-[rgba(34,40,49,0.85)]">
+					<div className="w-full max-w-lg glass-surface p-8 space-y-6 animate-fade-in-up shadow-2xl">
+						<div className="text-center space-y-3">
+							<div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center">
+								<svg className="w-6 h-6 text-[var(--accent-foreground)]" fill="currentColor" viewBox="0 0 20 20">
+									<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+								</svg>
+							</div>
+							<h2 className="text-xl font-semibold accent-gradient-text">
+								Session Detected
+							</h2>
+							<p className="text-[var(--foreground-muted)] leading-relaxed">
+								We found an unfinished interview session. Would you like to continue where you left off or start fresh?
+							</p>
+						</div>
+						<div className="flex gap-3">
 							<Button
 								variant="ghost"
-								size="sm"
-								onClick={() => {
-									// Resume: simply close modal
-									setShowResumeModal(false);
-								}}
-								className="bg-blue-500/80 hover:bg-blue-500 text-white"
+								onClick={() => setShowResumeModal(false)}
+								className="flex-1 btn-accent"
 							>
-								Resume
+								Continue Session
 							</Button>
 							<Button
 								variant="outline"
-								size="sm"
 								onClick={async () => {
-									// Fully reset interview + persistence
 									dispatch(resetInterview());
 									await resetPersistedStore();
 									setShowResumeModal(false);
 								}}
-								className="border-neutral-500/30 hover:bg-white/10"
+								className="flex-1 border-white/20 hover:bg-white/10 text-[var(--foreground)]"
 							>
-								Start Over
+								Start Fresh
 							</Button>
 						</div>
 					</div>
 				</div>
 			)}
-			<div className="space-y-3">
-				<h1 className="text-3xl font-semibold tracking-tight accent-gradient-text">
-					Interview Session
-				</h1>
-				<p className="text-sm text-[var(--foreground-muted)] max-w-prose">
-					Upload your resume to parse key profile details. You can resume an unfinished session at any time.
-				</p>
-				<div className="flex flex-wrap gap-2 text-[10px] font-medium">
-					<Badge
-						variant="secondary"
-						className="bg-white/10 text-neutral-200 border-white/10"
-					>
-						Adaptive
-					</Badge>
-					<Badge
-						variant="secondary"
-						className="bg-white/10 text-neutral-200 border-white/10"
-					>
-						Timed
-					</Badge>
-					<Badge
-						variant="secondary"
-						className="bg-white/10 text-neutral-200 border-white/10"
-					>
-						Gemini AI
-					</Badge>
+			
+			{/* Header Section */}
+			<div className="text-center space-y-6">
+				<div className="space-y-4">
+					<h1 className="text-4xl md:text-5xl font-bold tracking-tight accent-gradient-text">
+						AI Interview Assistant
+					</h1>
+					<p className="text-lg text-[var(--foreground-muted)] max-w-2xl mx-auto leading-relaxed">
+						Upload your resume and let our AI conduct a comprehensive technical interview with real-time evaluation
+					</p>
+				</div>
+				<div className="flex flex-wrap items-center justify-center gap-3">
+					<span className="badge-accent px-4 py-2 rounded-full text-xs font-medium">✨ AI-Powered</span>
+					<span className="bg-white/8 text-[var(--foreground-muted)] border border-white/12 px-4 py-2 rounded-full text-xs font-medium">⏱️ Timed Questions</span>
+					<span className="bg-white/8 text-[var(--foreground-muted)] border border-white/12 px-4 py-2 rounded-full text-xs font-medium">📄 Resume Parsing</span>
+					<span className="bg-white/8 text-[var(--foreground-muted)] border border-white/12 px-4 py-2 rounded-full text-xs font-medium">🎯 Adaptive Difficulty</span>
 				</div>
 			</div>
-			<Card className="glass-surface">
-				<CardHeader>
-					<CardTitle className="text-sm font-medium text-neutral-200">
-						1 · Resume Upload
-					</CardTitle>
+
+			{/* Step 1: Resume Upload */}
+			<Card className="glass-surface overflow-hidden">
+				<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
+					<div className="flex items-center gap-3">
+						<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
+							1
+						</div>
+						<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
+							Upload Resume
+						</CardTitle>
+					</div>
 				</CardHeader>
-				<CardContent className="space-y-4">
+				<CardContent className="p-8 space-y-6">
+					<div className="text-center space-y-4">
+						<div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center">
+							<svg className="w-8 h-8 text-[var(--foreground-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+							</svg>
+						</div>
+						<div className="space-y-2">
+							<p className="text-[var(--foreground)] font-medium">Drop your resume here or click to browse</p>
+							<p className="text-sm text-[var(--foreground-muted)]">Supports PDF and DOCX files up to 10MB</p>
+						</div>
+					</div>
+					
 					<Input
 						type="file"
 						accept="application/pdf,.pdf,.docx"
@@ -301,26 +310,59 @@ export default function IntervieweePage() {
 							const f = e.target.files?.[0];
 							if (f) onFile(f);
 						}}
+						className="h-14 text-base cursor-pointer file:cursor-pointer file:border-0 file:bg-[var(--accent)] file:text-[var(--accent-foreground)] file:px-6 file:py-2 file:rounded-lg file:font-medium file:mr-4 hover:file:bg-[var(--accent)]/90"
 					/>
-					{parseError && <p className="text-xs text-red-400">{parseError}</p>}
+					
+					{uploading && (
+						<div className="flex items-center gap-3 p-4 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20">
+							<div className="w-5 h-5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
+							<p className="text-sm text-[var(--accent)] font-medium">Parsing resume...</p>
+						</div>
+					)}
+					
+					{parseError && (
+						<div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+							<svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+								<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+							</svg>
+							<p className="text-sm text-red-400">{parseError}</p>
+						</div>
+					)}
+					
 					{interview.profile.resumeExtracted && (
-						<p className="text-xs text-emerald-400">Resume parsed.</p>
+						<div className="flex items-center gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+							<svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+								<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+							</svg>
+							<p className="text-sm text-emerald-400 font-medium">Resume successfully parsed!</p>
+						</div>
 					)}
 				</CardContent>
 			</Card>
+
+			{/* Step 2: Profile Confirmation */}
 			{interview.status === "collecting-profile" && (
-				<Card className="glass-surface">
-					<CardHeader>
-						<CardTitle className="text-sm font-medium text-neutral-200">
-							2 · Profile Confirmation
-						</CardTitle>
+				<Card className="glass-surface overflow-hidden">
+					<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
+						<div className="flex items-center gap-3">
+							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
+								2
+							</div>
+							<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
+								Confirm Your Details
+							</CardTitle>
+						</div>
 					</CardHeader>
-					<CardContent className="space-y-4">
-						<div className="grid gap-4 sm:grid-cols-3">
+					<CardContent className="p-8 space-y-6">
+						<p className="text-[var(--foreground-muted)] leading-relaxed">
+							Please verify and complete your profile information extracted from your resume.
+						</p>
+						
+						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 							{(["name", "email", "phone"] as const).map((field) => (
-								<div key={field} className="space-y-1">
-									<label className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-										{field}
+								<div key={field} className="space-y-2">
+									<label className="text-sm font-medium text-[var(--foreground)] capitalize">
+										{field === "phone" ? "Phone Number" : field}
 									</label>
 									<Input
 										value={(interview.profile as any)[field] || ""}
@@ -329,126 +371,222 @@ export default function IntervieweePage() {
 												setProfileField({ key: field, value: e.target.value })
 											)
 										}
-										placeholder={field}
+										placeholder={`Enter your ${field}`}
+										className="h-12 text-base bg-white/5 border-white/10 focus:border-[var(--accent)]/50 focus:ring-[var(--accent)]/20"
 									/>
 								</div>
 							))}
 						</div>
+						
 						{missingFields.length > 0 && (
-							<p className="text-xs text-amber-400">
-								Missing: {missingFields.join(", ")}
-							</p>
+							<div className="flex items-center gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+								<svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+									<path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+								</svg>
+								<p className="text-sm text-amber-400">
+									Please complete: {missingFields.join(", ")}
+								</p>
+							</div>
 						)}
+						
 						<Button
 							disabled={missingFields.length > 0}
 							onClick={() => dispatch(beginInterview())}
-							className="bg-blue-600 hover:bg-blue-500 text-white shadow"
+							className="w-full h-12 btn-accent text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							Begin Interview
+							{missingFields.length > 0 ? "Complete All Fields" : "Begin Interview →"}
 						</Button>
 					</CardContent>
 				</Card>
 			)}
+
+			{/* Step 3: Interview */}
 			{interview.status === "in-progress" && (
-				<Card className="glass-surface">
-					<CardHeader>
-						<CardTitle className="text-sm flex items-center justify-between gap-4 text-neutral-200">
-							<span>3 · Interview</span>
+				<Card className="glass-surface overflow-hidden">
+					<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-3">
+								<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
+									3
+								</div>
+								<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
+									Technical Interview
+								</CardTitle>
+							</div>
 							{current && (
-								<div className="flex items-center gap-2">
-									<div className="h-1.5 w-28 bg-neutral-700/50 rounded overflow-hidden">
-										<div
-											className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all"
-											style={{
-												width: `$${"{"}(remainingMs && current.allottedMs ? ((remainingMs / current.allottedMs) * 100).toFixed(2) : 0)}%`,
-											}}
-										/>
+								<div className="flex items-center gap-3">
+									<div className="text-right">
+										<p className="text-sm font-medium text-[var(--foreground)]">
+											{Math.max(0, Math.ceil((remainingMs || 0) / 1000))}s
+										</p>
+										<p className="text-xs text-[var(--foreground-muted)] uppercase tracking-wide">
+											Remaining
+										</p>
 									</div>
-									<span className="text-[10px] font-mono text-neutral-400">
-										{remainingMs !== null
-											? Math.max(0, Math.ceil(remainingMs / 1000))
-											: "-"}
-										s
-									</span>
+									<div className="w-16 h-16 relative">
+										<svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 100 100">
+											<circle
+												cx="50"
+												cy="50"
+												r="45"
+												stroke="rgba(255,255,255,0.1)"
+												strokeWidth="8"
+												fill="none"
+											/>
+											<circle
+												cx="50"
+												cy="50"
+												r="45"
+												stroke="var(--accent)"
+												strokeWidth="8"
+												fill="none"
+												strokeLinecap="round"
+												strokeDasharray={`${2 * Math.PI * 45}`}
+												strokeDashoffset={`${2 * Math.PI * 45 * (1 - (remainingMs && current.allottedMs ? remainingMs / current.allottedMs : 0))}`}
+												className="transition-all duration-1000 ease-linear"
+											/>
+										</svg>
+									</div>
 								</div>
 							)}
-						</CardTitle>
+						</div>
 					</CardHeader>
-					<CardContent className="space-y-4">
+					<CardContent className="p-8 space-y-6">
 						{current ? (
-							<div className="space-y-2">
-								<p className="text-sm font-medium text-neutral-300">
-									Question {current.index + 1} of {interview.questions.length} (
-									{current.difficulty})
-								</p>
-								<p className="text-sm text-neutral-200 whitespace-pre-line soft-border rounded-md p-3 bg-white/5 min-h-[60px]">
-									{current.question || "Generating question..."}
-								</p>
-								<div className="space-y-1">
-									<label className="text-[11px] uppercase tracking-wide text-neutral-400">
+							<div className="space-y-6">
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-4">
+										<span className="badge-accent px-3 py-1 rounded-full text-xs font-medium">
+											Question {current.index + 1} of {interview.questions.length}
+										</span>
+										<span className="bg-white/8 text-[var(--foreground-muted)] border border-white/12 px-3 py-1 rounded-full text-xs font-medium capitalize">
+											{current.difficulty}
+										</span>
+									</div>
+								</div>
+								
+								<div className="p-6 rounded-xl bg-gradient-to-br from-white/8 to-white/3 border border-white/10">
+									<p className="text-[var(--foreground)] text-base leading-relaxed whitespace-pre-line">
+										{current.question || (
+											<div className="flex items-center gap-3">
+												<div className="w-5 h-5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
+												<span className="text-[var(--foreground-muted)]">Generating your question...</span>
+											</div>
+										)}
+									</p>
+								</div>
+								
+								<div className="space-y-3">
+									<label className="text-sm font-medium text-[var(--foreground)] flex items-center gap-2">
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+										</svg>
 										Your Answer
 									</label>
 									<textarea
-										className="w-full rounded-md soft-border bg-white/5 text-neutral-100 placeholder:text-neutral-500 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:bg-white/10 transition"
+										className="w-full h-40 rounded-xl border border-white/10 bg-white/5 text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] p-4 text-base focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/60 focus:border-[var(--accent)]/50 focus:bg-white/8 transition-all resize-none"
 										value={answerDraft}
 										onChange={(e) => setAnswerDraft(e.target.value)}
-										rows={5}
+										placeholder="Type your answer here... Be detailed and explain your reasoning."
 									/>
 								</div>
-								<div className="flex items-center justify-between">
-									<p className="text-[10px] text-neutral-500">
-										Auto-submits when timer ends.
-									</p>
+								
+								<div className="flex items-center justify-between pt-4 border-t border-white/10">
+									<div className="flex items-center gap-2 text-xs text-[var(--foreground-muted)]">
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+										</svg>
+										Auto-submits when timer expires
+									</div>
 									<Button
-										size="sm"
 										onClick={submitAnswer}
-										disabled={!answerDraft}
-										className="bg-blue-600 hover:bg-blue-500 text-white shadow"
+										disabled={!answerDraft.trim()}
+										className="btn-accent px-6 h-10 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
 									>
-										Submit & Next
+										Submit Answer →
 									</Button>
 								</div>
 							</div>
 						) : (
-							<p className="text-xs text-neutral-500">
-								Preparing next question...
-							</p>
+							<div className="text-center py-12">
+								<div className="w-12 h-12 mx-auto mb-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
+								<p className="text-[var(--foreground-muted)]">Preparing your next question...</p>
+							</div>
 						)}
 					</CardContent>
 				</Card>
 			)}
+
+			{/* Step 4: Interview Complete */}
 			{interview.status === "completed" && (
-				<Card className="glass-surface">
-					<CardHeader>
-						<CardTitle className="text-sm text-neutral-200">
-							Interview Complete
-						</CardTitle>
+				<Card className="glass-surface overflow-hidden">
+					<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
+						<div className="flex items-center gap-3">
+							<div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+								<svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+									<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+								</svg>
+							</div>
+							<div>
+								<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
+									Interview Complete!
+								</CardTitle>
+								<p className="text-sm text-[var(--foreground-muted)]">
+									Great job completing all questions
+								</p>
+							</div>
+						</div>
 					</CardHeader>
-					<CardContent className="space-y-3">
-						<p className="text-sm text-neutral-300">
-							Final Score: {interview.finalScore ?? "—"}
-						</p>
-						<p className="text-sm whitespace-pre-line bg-white/5 soft-border rounded p-3 min-h-[60px] text-neutral-200">
-							{interview.summary || "Generating summary..."}
-						</p>
+					<CardContent className="p-8 space-y-6">
+						<div className="text-center space-y-4">
+							<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30">
+								<span className="text-2xl font-bold text-emerald-400">
+									{interview.finalScore ?? "—"}
+								</span>
+								<span className="text-emerald-400 font-medium">/ 100</span>
+							</div>
+							<p className="text-sm text-[var(--foreground-muted)]">
+								Your overall performance score
+							</p>
+						</div>
+						
+						<div className="p-6 rounded-xl bg-gradient-to-br from-white/8 to-white/3 border border-white/10">
+							<h3 className="text-sm font-medium text-[var(--foreground)] mb-3 flex items-center gap-2">
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+								</svg>
+								Interview Summary
+							</h3>
+							<p className="text-[var(--foreground)] text-sm leading-relaxed whitespace-pre-line">
+								{interview.summary || (
+									<div className="flex items-center gap-3">
+										<div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
+										<span className="text-[var(--foreground-muted)]">Generating your performance summary...</span>
+									</div>
+								)}
+							</p>
+						</div>
+						
 						<Button
-							size="sm"
 							onClick={async () => {
-								// Reset interview state & purge persistence to begin a fresh session
 								dispatch(resetInterview());
 								await resetPersistedStore();
 							}}
-							className="bg-blue-600 hover:bg-blue-500 text-white"
+							className="w-full h-12 btn-accent text-base font-medium"
 						>
-							Start New Session
+							Start New Interview Session
 						</Button>
 					</CardContent>
 				</Card>
 			)}
-			<Separator />
-			<p className="text-[11px] text-neutral-500 tracking-wide">
-				Prototype – Gemini AI & LangChain enabled.
-			</p>
+
+			{/* Footer */}
+			<div className="text-center pt-12">
+				<div className="card-divider mb-6"></div>
+				<p className="text-xs text-[var(--foreground-muted)] tracking-wide">
+					CRISP Interview Assistant · Powered by Gemini AI & LangChain
+				</p>
+			</div>
 		</div>
 	);
 }
