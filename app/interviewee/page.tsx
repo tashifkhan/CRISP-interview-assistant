@@ -252,17 +252,35 @@ export default function IntervieweePage() {
 					Interview Session
 				</h1>
 				<p className="text-sm text-neutral-400 max-w-prose">
-					Upload your resume to parse key profile details. You can resume an unfinished session at any time.
+					Upload your resume to parse key profile details. You can resume an
+					unfinished session at any time.
 				</p>
 				<div className="flex flex-wrap gap-2 text-[10px] font-medium">
-					<Badge variant="secondary" className="bg-white/10 text-neutral-200 border-white/10">Adaptive</Badge>
-					<Badge variant="secondary" className="bg-white/10 text-neutral-200 border-white/10">Timed</Badge>
-					<Badge variant="secondary" className="bg-white/10 text-neutral-200 border-white/10">Gemini AI</Badge>
+					<Badge
+						variant="secondary"
+						className="bg-white/10 text-neutral-200 border-white/10"
+					>
+						Adaptive
+					</Badge>
+					<Badge
+						variant="secondary"
+						className="bg-white/10 text-neutral-200 border-white/10"
+					>
+						Timed
+					</Badge>
+					<Badge
+						variant="secondary"
+						className="bg-white/10 text-neutral-200 border-white/10"
+					>
+						Gemini AI
+					</Badge>
 				</div>
 			</div>
 			<Card className="glass-surface">
 				<CardHeader>
-					<CardTitle className="text-sm font-medium text-neutral-200">1 · Resume Upload</CardTitle>
+					<CardTitle className="text-sm font-medium text-neutral-200">
+						1 · Resume Upload
+					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<Input
@@ -283,7 +301,9 @@ export default function IntervieweePage() {
 			{interview.status === "collecting-profile" && (
 				<Card className="glass-surface">
 					<CardHeader>
-						<CardTitle className="text-sm font-medium text-neutral-200">2 · Profile Confirmation</CardTitle>
+						<CardTitle className="text-sm font-medium text-neutral-200">
+							2 · Profile Confirmation
+						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div className="grid gap-4 sm:grid-cols-3">
@@ -330,14 +350,15 @@ export default function IntervieweePage() {
 										<div
 											className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all"
 											style={{
-												width: `$${'{'}(remainingMs && current.allottedMs ? ((remainingMs / current.allottedMs) * 100).toFixed(2) : 0)}%`
+												width: `$${"{"}(remainingMs && current.allottedMs ? ((remainingMs / current.allottedMs) * 100).toFixed(2) : 0)}%`,
 											}}
 										/>
 									</div>
 									<span className="text-[10px] font-mono text-neutral-400">
 										{remainingMs !== null
 											? Math.max(0, Math.ceil(remainingMs / 1000))
-											: "-"}s
+											: "-"}
+										s
 									</span>
 								</div>
 							)}
@@ -389,7 +410,9 @@ export default function IntervieweePage() {
 			{interview.status === "completed" && (
 				<Card className="glass-surface">
 					<CardHeader>
-						<CardTitle className="text-sm text-neutral-200">Interview Complete</CardTitle>
+						<CardTitle className="text-sm text-neutral-200">
+							Interview Complete
+						</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						<p className="text-sm text-neutral-300">
@@ -398,7 +421,11 @@ export default function IntervieweePage() {
 						<p className="text-sm whitespace-pre-line bg-white/5 soft-border rounded p-3 min-h-[60px] text-neutral-200">
 							{interview.summary || "Generating summary..."}
 						</p>
-						<Button size="sm" onClick={() => location.reload()} className="bg-blue-600 hover:bg-blue-500 text-white">
+						<Button
+							size="sm"
+							onClick={() => location.reload()}
+							className="bg-blue-600 hover:bg-blue-500 text-white"
+						>
 							Start New Session
 						</Button>
 					</CardContent>
