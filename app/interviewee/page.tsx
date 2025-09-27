@@ -14,7 +14,9 @@ import {
 	advanceQuestion,
 	setFinalSummary,
 	tickTimer,
+	resetInterview,
 } from "@/store/interviewSlice";
+import { resetPersistedStore } from "@/store";
 import { RootState } from "@/store";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -228,23 +230,28 @@ export default function IntervieweePage() {
 						</p>
 						<div className="flex gap-3 justify-end pt-2">
 							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => {
-									localStorage.clear();
-									location.reload();
-								}}
-								className="border-neutral-500/30 hover:bg-white/10"
-							>
-								Start Over
-							</Button>
-							<Button
 								variant="ghost"
 								size="sm"
-								onClick={() => setShowResumeModal(false)}
+								onClick={() => {
+								// Resume: simply close modal
+								setShowResumeModal(false);
+							}}
 								className="bg-blue-500/80 hover:bg-blue-500 text-white"
 							>
 								Resume
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={async () => {
+								// Fully reset interview + persistence
+								dispatch(resetInterview());
+								await resetPersistedStore();
+								setShowResumeModal(false);
+							}}
+								className="border-neutral-500/30 hover:bg-white/10"
+							>
+								Start Over
 							</Button>
 						</div>
 					</div>

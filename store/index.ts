@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'localforage';
-import { interviewSlice } from './interviewSlice';
+import { interviewSlice } from '@/store/interviewSlice';
 import { combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
@@ -22,6 +22,19 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+// Helper to fully reset persisted state (IndexedDB via localforage)
+export async function resetPersistedStore() {
+  try {
+    // Purge redux-persist state
+    await persistor.purge();
+    // Clear the underlying storage bucket (localforage)
+    await storage.clear();
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to reset persisted store', e);
+  }
+}
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
