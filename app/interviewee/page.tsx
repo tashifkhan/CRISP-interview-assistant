@@ -433,7 +433,11 @@ export default function IntervieweePage() {
 						</p>
 						<Button
 							size="sm"
-							onClick={() => location.reload()}
+							onClick={async () => {
+							// Reset interview state & purge persistence to begin a fresh session
+							dispatch(resetInterview());
+							await resetPersistedStore();
+						}}
 							className="bg-blue-600 hover:bg-blue-500 text-white"
 						>
 							Start New Session
