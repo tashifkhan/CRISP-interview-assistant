@@ -5,7 +5,7 @@ An AI-powered technical interview assistant built with Next.js (App Router) that
 - Interviewee chat interface (resume upload, timed AI Q&A, local persistence)
 - Interviewer dashboard (scores, summaries, searchable/sortable list, detailed transcripts)
 - Hybrid persistence (IndexedDB for in-progress sessions, MongoDB for completed interviews)
-- LangChain / LangGraph powered question generation, scoring, summarization
+- AI (Gemini) powered question generation, scoring, summarization (with mock/heuristic fallback)
 
 ## High-Level Architecture
 
@@ -52,8 +52,8 @@ Implemented:
 
 - Resume upload & parsing (PDF/DOCX) with naive entity extraction
 - Local persisted interview state with timers & auto-advance (2 Easy → 2 Medium → 2 Hard)
-- Mock + optional LLM question generation (OpenAI key enables real generation)
-- Heuristic + optional LLM answer evaluation (score 0–5) & final summary
+- AI provider abstraction using Google Gemini (falls back to deterministic mock if no key)
+- Heuristic + LLM (Gemini) answer evaluation (score 0–5) & final summary
 - Completion persistence to MongoDB (schema validated via Zod)
 - Interviewer dashboard (list, search, sort, detail transcript page `/interviewer/[id]`)
 - Unfinished session detection modal & recovery
@@ -65,16 +65,22 @@ Upcoming polish / enhancements:
 - Test suite (parsing, reducers, API schemas)
 - Accessibility pass & visual refinements
 
-## Enabling AI
+## Enabling AI (Google Gemini)
 
 Add to `.env.local`:
 
 ```
-OPENAI_API_KEY=sk-...
-CRISP_MODEL=gpt-4o-mini
+GEMINI_API_KEY=your_key_here
+# Optional: override default fast model (gemini-1.5-flash)
+CRISP_GEMINI_MODEL=gemini-1.5-pro
 ```
 
-Without a key the system gracefully falls back to deterministic mock / heuristics.
+Behavior:
+
+- If a Gemini key is present: real question generation, scoring, summarization.
+- If absent: deterministic mock question bank + heuristic scoring & summary.
+
+All AI logic is centralized in `lib/ai/provider.ts` for future multi-provider expansion.
 
 ## Candidate Detail Page
 

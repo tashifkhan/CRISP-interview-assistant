@@ -13,6 +13,7 @@ import {
 	recordScore,
 	advanceQuestion,
 	setFinalSummary,
+	tickTimer,
 } from "@/store/interviewSlice";
 import { RootState } from "@/store";
 import { useState, useEffect, useCallback } from "react";
@@ -65,29 +66,28 @@ export default function IntervieweePage() {
 		[dispatch, interview.questions, interview.role]
 	);
 
-	// Timer effect and auto-advance
+	// Timer effect and auto-advance with persisted remainingMs
 	useEffect(() => {
-		if (interview.status !== "in-progress" || !current) return;
-		if (!current.startedAt) return; // wait until startedAt is set
-		const end = current.startedAt + current.allottedMs;
-		const tick = () => {
-			const now = Date.now();
-			const rem = end - now;
-			if (rem <= 0) {
-				setRemainingMs(0);
-				// Auto submit existing draft (if not already answered) then advance
-				if (!current.answer && answerDraft) {
-					dispatch(recordAnswer({ index: current.index, answer: answerDraft }));
-				}
-				dispatch(advanceQuestion());
-			} else {
-				setRemainingMs(rem);
+		if (interview.status !== 'in-progress' || !current) return;
+		if (!current.startedAt) return;
+		const interval = setInterval(() => {
+			dispatch(tickTimer());
+		}, 1000);
+		return () => clearInterval(interval);
+	}, [interview.status, current, dispatch]);
+
+	// Watch current question remainingMs to determine auto-advance
+	useEffect(() => {
+		if (interview.status !== 'in-progress' || !current) return;
+		const remaining = current.remainingMs ?? (current.allottedMs - (Date.now() - (current.startedAt || Date.now())));
+		setRemainingMs(remaining);
+		if (remaining <= 0) {
+			if (!current.answer && answerDraft) {
+				dispatch(recordAnswer({ index: current.index, answer: answerDraft }));
 			}
-		};
-		tick();
-		const id = setInterval(tick, 250);
-		return () => clearInterval(id);
-	}, [interview.status, current, answerDraft, dispatch]);
+			dispatch(advanceQuestion());
+		}
+	}, [interview.status, current?.remainingMs]);
 
 	// Load question text when entering a question
 	useEffect(() => {

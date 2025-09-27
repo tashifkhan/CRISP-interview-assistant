@@ -13,6 +13,7 @@ export interface QuestionRecord {
   startedAt?: number; // epoch ms
   submittedAt?: number; // epoch ms
   allottedMs: number;
+  remainingMs?: number; // persisted remaining time (updated every ~1s)
 }
 
 export interface CandidateProfile {
@@ -56,7 +57,7 @@ export const interviewSlice = createSlice({
       state.createdAt = Date.now();
     },
     setProfileField(state, action: PayloadAction<{ key: keyof CandidateProfile; value: string }>) {
-      state.profile[action.payload.key] = action.payload.value;
+      (state.profile as any)[action.payload.key] = action.payload.value;
     },
     markResumeExtracted(state) {
       state.profile.resumeExtracted = true;
@@ -69,6 +70,7 @@ export const interviewSlice = createSlice({
           difficulty: d,
           question: '',
           allottedMs: difficultyTimers[d],
+          remainingMs: difficultyTimers[d],
         }));
       }
       state.status = 'in-progress';
@@ -95,11 +97,23 @@ export const interviewSlice = createSlice({
       }
       if (state.currentQuestionIndex < state.questions.length - 1) {
         state.currentQuestionIndex += 1;
-        state.questions[state.currentQuestionIndex].startedAt = Date.now();
+        const nq = state.questions[state.currentQuestionIndex];
+        nq.startedAt = Date.now();
+        if (nq.remainingMs == null) nq.remainingMs = nq.allottedMs;
       } else {
         state.status = 'completed';
         state.completedAt = Date.now();
       }
+    },
+    tickTimer(state) {
+      if (state.status !== 'in-progress') return;
+      const idx = state.currentQuestionIndex;
+      if (idx < 0) return;
+      const q = state.questions[idx];
+      if (!q.startedAt) return;
+      const elapsed = Date.now() - q.startedAt;
+      const remaining = q.allottedMs - elapsed;
+      q.remainingMs = remaining > 0 ? remaining : 0;
     },
     setFinalSummary(state, action: PayloadAction<{ summary: string; finalScore: number }>) {
       state.summary = action.payload.summary;
@@ -120,6 +134,7 @@ export const {
   recordAnswer,
   recordScore,
   advanceQuestion,
+  tickTimer,
   setFinalSummary,
   resetInterview
 } = interviewSlice.actions;
