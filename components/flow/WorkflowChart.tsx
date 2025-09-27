@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from 'react';
-import mermaid from 'mermaid';
+import { useEffect, useState } from "react";
+import mermaid from "mermaid";
 
 const diagram = `flowchart TD
   A([Start - Application Loaded]):::frontend
@@ -47,20 +47,31 @@ const diagram = `flowchart TD
   AL --> AM[Show Candidate Detail View]:::frontend
   AJ -->|No| AH
   AM --> AN([END])
-  classDef frontend fill=#0f172a,stroke=#3b82f6,stroke-width=1,color=#e2e8f0;
-  classDef backend fill=#1e293b,stroke=#f59e0b,stroke-width=1,color=#f5f5f5;
+  %% Class styles (Mermaid v11 syntax expects colons)
+  classDef frontend fill:#0f172a,stroke:#3b82f6,stroke-width:1px,color:#e2e8f0;
+  classDef backend fill:#1e293b,stroke:#f59e0b,stroke-width:1px,color:#f5f5f5;
+  classDef database fill:#172554,stroke:#fbbf24,stroke-width:1px,color:#f5f5f5;
 `;
 
 export function WorkflowChart() {
-  const [html, setHtml] = useState<string>('');
-  useEffect(() => {
-    mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
-  mermaid.render('workflowDiagram', diagram).then((res: any) => setHtml(res.svg));
-  }, []);
-  return (
-    <div className="relative rounded-xl border border-[var(--border-color)] bg-gradient-to-br from-white/5 to-white/2 p-4 md:p-6 overflow-auto max-h-[650px]">
-      <div dangerouslySetInnerHTML={{ __html: html }} className="mermaid text-[12px] [&_svg]:w-full [&_svg]:h-auto" />
-    </div>
-  );
+	const [html, setHtml] = useState<string>("");
+	useEffect(() => {
+		mermaid.initialize({
+			startOnLoad: false,
+			theme: "dark",
+			securityLevel: "loose",
+		});
+		mermaid
+			.render("workflowDiagram", diagram)
+			.then((res: any) => setHtml(res.svg));
+	}, []);
+	return (
+		<div className="relative rounded-xl border border-[var(--border-color)] bg-gradient-to-br from-white/5 to-white/2 p-4 md:p-6 overflow-auto max-h-[650px]">
+			<div
+				dangerouslySetInnerHTML={{ __html: html }}
+				className="mermaid text-[12px] [&_svg]:w-full [&_svg]:h-auto"
+			/>
+		</div>
+	);
 }
 export default WorkflowChart;
