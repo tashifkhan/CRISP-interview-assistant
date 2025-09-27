@@ -48,4 +48,38 @@ pnpm dev
 
 ## Status
 
-Phase 1 scaffolding in progress.
+Implemented:
+
+- Resume upload & parsing (PDF/DOCX) with naive entity extraction
+- Local persisted interview state with timers & auto-advance (2 Easy → 2 Medium → 2 Hard)
+- Mock + optional LLM question generation (OpenAI key enables real generation)
+- Heuristic + optional LLM answer evaluation (score 0–5) & final summary
+- Completion persistence to MongoDB (schema validated via Zod)
+- Interviewer dashboard (list, search, sort, detail transcript page `/interviewer/[id]`)
+- Unfinished session detection modal & recovery
+
+Upcoming polish / enhancements:
+
+- Improved prompt engineering and rubric scoring
+- Retry & offline resilience UI
+- Test suite (parsing, reducers, API schemas)
+- Accessibility pass & visual refinements
+
+## Enabling AI
+
+Add to `.env.local`:
+
+```
+OPENAI_API_KEY=sk-...
+CRISP_MODEL=gpt-4o-mini
+```
+
+Without a key the system gracefully falls back to deterministic mock / heuristics.
+
+## Candidate Detail Page
+
+Navigate from dashboard list (each candidate links to `/interviewer/{id}`) to view:
+
+- Profile & session metadata
+- Full question list with per-question score
+- Final summary & overall score
