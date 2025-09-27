@@ -23,8 +23,24 @@ export default function InterviewerPage() {
 	);
 
 	useEffect(() => {
-		// Placeholder: will fetch from /api/candidates later
-		setCandidates([]);
+		(async () => {
+			try {
+				const res = await fetch('/api/candidates/get-all');
+				if (res.ok) {
+					const data = await res.json();
+					setCandidates((data.candidates || []).map((c: any) => ({
+						id: c.sessionId || c._id,
+						name: c.profile?.name || 'Unknown',
+						email: c.profile?.email || 'n/a',
+						finalScore: c.finalScore ?? 0,
+						summary: c.summary || ''
+					})));
+				}
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error(e);
+			}
+		})();
 	}, []);
 
 	return (
