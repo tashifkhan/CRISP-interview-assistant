@@ -39,7 +39,6 @@
 		"eslint": "^9",
 		"eslint-config-next": "15.5.4",
 		"@eslint/eslintrc": "^3",
-		"@types/mammoth": "^1.4.4",
 		"@types/localforage": "^0.0.34"
 	}
 }
