@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -25,16 +26,18 @@ export default function InterviewerPage() {
 	useEffect(() => {
 		(async () => {
 			try {
-				const res = await fetch('/api/candidates/get-all');
+				const res = await fetch("/api/candidates/get-all");
 				if (res.ok) {
 					const data = await res.json();
-					setCandidates((data.candidates || []).map((c: any) => ({
-						id: c.sessionId || c._id,
-						name: c.profile?.name || 'Unknown',
-						email: c.profile?.email || 'n/a',
-						finalScore: c.finalScore ?? 0,
-						summary: c.summary || ''
-					})));
+					setCandidates(
+						(data.candidates || []).map((c: any) => ({
+							id: c.sessionId || c._id,
+							name: c.profile?.name || "Unknown",
+							email: c.profile?.email || "n/a",
+							finalScore: c.finalScore ?? 0,
+							summary: c.summary || "",
+						}))
+					);
 				}
 			} catch (e) {
 				// eslint-disable-next-line no-console
@@ -70,9 +73,10 @@ export default function InterviewerPage() {
 					)}
 					<div className="space-y-2">
 						{filtered.map((c) => (
-							<div
+							<Link
+								href={`/interviewer/${c.id}`}
 								key={c.id}
-								className="rounded-md border p-3 bg-white hover:bg-neutral-50 transition-colors cursor-pointer"
+								className="block rounded-md border p-3 bg-white hover:bg-neutral-50 transition-colors"
 							>
 								<div className="flex items-center justify-between gap-4">
 									<div className="space-y-0.5">
@@ -88,7 +92,7 @@ export default function InterviewerPage() {
 									</div>
 									<Badge variant="secondary">Score {c.finalScore}</Badge>
 								</div>
-							</div>
+							</Link>
 						))}
 					</div>
 				</CardContent>

@@ -31,6 +31,15 @@ export default function IntervieweePage() {
 			? interview.questions[interview.currentQuestionIndex]
 			: undefined;
 
+	const [showResumeModal, setShowResumeModal] = useState(false);
+
+	// Detect unfinished session on mount
+	useEffect(() => {
+		if (interview.status === 'in-progress' || interview.status === 'collecting-profile') {
+			setShowResumeModal(true);
+		}
+	}, []);
+
 	const fetchQuestion = useCallback(
 		async (index: number) => {
 			const q = interview.questions[index];
@@ -82,7 +91,10 @@ export default function IntervieweePage() {
 
 	// Load question text when entering a question
 	useEffect(() => {
-		if (interview.status === "in-progress" && interview.currentQuestionIndex >= 0) {
+		if (
+			interview.status === "in-progress" &&
+			interview.currentQuestionIndex >= 0
+		) {
 			fetchQuestion(interview.currentQuestionIndex);
 			setAnswerDraft("");
 		}
@@ -99,7 +111,12 @@ export default function IntervieweePage() {
 					});
 					if (res.ok) {
 						const data = await res.json();
-						dispatch(setFinalSummary({ summary: data.summary, finalScore: data.finalScore }));
+						dispatch(
+							setFinalSummary({
+								summary: data.summary,
+								finalScore: data.finalScore,
+							})
+						);
 						// Push to server
 						await fetch("/api/interview/complete-interview", {
 							method: "POST",
@@ -122,7 +139,17 @@ export default function IntervieweePage() {
 				}
 			})();
 		}
-	}, [interview.status, interview.summary, interview.questions, interview.sessionId, interview.role, interview.profile, interview.createdAt, interview.completedAt, dispatch]);
+	}, [
+		interview.status,
+		interview.summary,
+		interview.questions,
+		interview.sessionId,
+		interview.role,
+		interview.profile,
+		interview.createdAt,
+		interview.completedAt,
+		dispatch,
+	]);
 
 	const submitAnswer = async () => {
 		if (!current) return;
@@ -133,7 +160,10 @@ export default function IntervieweePage() {
 		try {
 			const res = await fetch("/api/interview/evaluate-answer", {
 				method: "POST",
-				body: JSON.stringify({ question: current.question, answer: answerDraft }),
+				body: JSON.stringify({
+					question: current.question,
+					answer: answerDraft,
+				}),
 			});
 			if (res.ok) {
 				const data = await res.json();
@@ -177,6 +207,24 @@ export default function IntervieweePage() {
 
 	return (
 		<div className="space-y-6">
+			{showResumeModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+					<div className="w-full max-w-md rounded-lg bg-white shadow-lg border p-6 space-y-4">
+						<h2 className="text-lg font-semibold tracking-tight">Welcome Back</h2>
+						<p className="text-sm text-neutral-600">
+							An unfinished interview session was found. Would you like to resume where you left off?
+						</p>
+						<div className="flex gap-3 justify-end">
+							<Button variant="ghost" size="sm" onClick={() => { setShowResumeModal(false); }}>
+								Resume
+							</Button>
+							<Button variant="outline" size="sm" onClick={() => { localStorage.clear(); location.reload(); }}>
+								Start Over
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
 			<div>
 				<h1 className="text-2xl font-semibold tracking-tight">
 					Interviewee Workspace
@@ -251,7 +299,11 @@ export default function IntervieweePage() {
 							<span>3. Interview</span>
 							{current && (
 								<span className="text-[10px] font-mono text-neutral-500">
-									Time: {remainingMs !== null ? Math.max(0, Math.ceil(remainingMs / 1000)) : "-"}s
+									Time:{" "}
+									{remainingMs !== null
+										? Math.max(0, Math.ceil(remainingMs / 1000))
+										: "-"}
+									s
 								</span>
 							)}
 						</CardTitle>
@@ -260,13 +312,16 @@ export default function IntervieweePage() {
 						{current ? (
 							<div className="space-y-2">
 								<p className="text-sm font-medium">
-									Question {current.index + 1} of {interview.questions.length} ({current.difficulty})
+									Question {current.index + 1} of {interview.questions.length} (
+									{current.difficulty})
 								</p>
 								<p className="text-sm text-neutral-700 whitespace-pre-line border rounded-md p-3 bg-neutral-50 min-h-[60px]">
 									{current.question || "Generating question..."}
 								</p>
 								<div className="space-y-1">
-									<label className="text-xs uppercase tracking-wide text-neutral-500">Your Answer</label>
+									<label className="text-xs uppercase tracking-wide text-neutral-500">
+										Your Answer
+									</label>
 									<textarea
 										className="w-full rounded-md border border-neutral-300 bg-white p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 										value={answerDraft}
@@ -275,15 +330,37 @@ export default function IntervieweePage() {
 									/>
 								</div>
 								<div className="flex items-center justify-between">
-									<p className="text-[10px] text-neutral-500">Auto-submits when timer ends.</p>
-									<Button size="sm" onClick={submitAnswer} disabled={!answerDraft}>
+									<p className="text-[10px] text-neutral-500">
+										Auto-submits when timer ends.
+									</p>
+									<Button
+										size="sm"
+										onClick={submitAnswer}
+										disabled={!answerDraft}
+									>
 										Submit & Next
 									</Button>
 								</div>
 							</div>
 						) : (
-							<p className="text-xs text-neutral-500">Preparing next question...</p>
+							<p className="text-xs text-neutral-500">
+								Preparing next question...
+							</p>
 						)}
+					</CardContent>
+				</Card>
+			)}
+			{interview.status === "completed" && (
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-sm">Interview Complete</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-3">
+						<p className="text-sm">Final Score: {interview.finalScore ?? '—'}</p>
+						<p className="text-sm whitespace-pre-line bg-neutral-50 border rounded p-3 min-h-[60px]">
+							{interview.summary || 'Generating summary...'}
+						</p>
+						<Button size="sm" onClick={() => location.reload()}>Start New Session</Button>
 					</CardContent>
 				</Card>
 			)}
