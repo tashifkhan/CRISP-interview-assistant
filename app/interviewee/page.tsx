@@ -16,7 +16,7 @@ import {
 	tickTimer,
 } from "@/store/interviewSlice";
 import { RootState } from "@/store";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -45,18 +45,13 @@ export default function IntervieweePage() {
 		}
 	}, []);
 
+  // Stable question fetch (avoid depending on the entire questions array so typing isn't reset)
 	const fetchQuestion = useCallback(
-		async (index: number) => {
-			const q = interview.questions[index];
-			if (!q || q.question) return;
+		async (index: number, difficulty: string) => {
 			try {
 				const res = await fetch("/api/interview/generate-question", {
 					method: "POST",
-					body: JSON.stringify({
-						index,
-						difficulty: q.difficulty,
-						role: interview.role,
-					}),
+					body: JSON.stringify({ index, difficulty, role: interview.role }),
 				});
 				if (res.ok) {
 					const data = await res.json();
@@ -67,8 +62,11 @@ export default function IntervieweePage() {
 				console.error(e);
 			}
 		},
-		[dispatch, interview.questions, interview.role]
+		[dispatch, interview.role]
 	);
+
+	// Track last question index to only reset when moving forward, not on timer ticks
+	const lastQuestionIndexRef = useRef<number | null>(null);
 
 	// Timer effect and auto-advance with persisted remainingMs
 	useEffect(() => {
@@ -95,16 +93,22 @@ export default function IntervieweePage() {
 		}
 	}, [interview.status, current?.remainingMs]);
 
-	// Load question text when entering a question
+	// Load question text & reset draft ONLY when question index changes
 	useEffect(() => {
-		if (
-			interview.status === "in-progress" &&
-			interview.currentQuestionIndex >= 0
-		) {
-			fetchQuestion(interview.currentQuestionIndex);
-			setAnswerDraft("");
+		if (interview.status !== "in-progress") return;
+		const idx = interview.currentQuestionIndex;
+		if (idx < 0) return;
+		if (lastQuestionIndexRef.current !== idx) {
+			const q = interview.questions[idx];
+			if (q && !q.question) {
+				fetchQuestion(idx, q.difficulty);
+			}
+			// Preserve existing recorded answer if navigating back (future feature), else clear.
+			setAnswerDraft(q?.answer || "");
+			lastQuestionIndexRef.current = idx;
 		}
-	}, [interview.status, interview.currentQuestionIndex, fetchQuestion]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [interview.status, interview.currentQuestionIndex]);
 
 	// When interview reaches completed state, request summary if missing
 	useEffect(() => {
