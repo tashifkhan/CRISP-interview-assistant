@@ -47,7 +47,7 @@ export default function IntervieweePage() {
 		}
 	}, []);
 
-  // Stable question fetch (avoid depending on the entire questions array so typing isn't reset)
+	// Stable question fetch (avoid depending on the entire questions array so typing isn't reset)
 	const fetchQuestion = useCallback(
 		async (index: number, difficulty: string) => {
 			try {
@@ -109,7 +109,7 @@ export default function IntervieweePage() {
 			setAnswerDraft(q?.answer || "");
 			lastQuestionIndexRef.current = idx;
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [interview.status, interview.currentQuestionIndex]);
 
 	// When interview reaches completed state, request summary if missing
@@ -226,16 +226,17 @@ export default function IntervieweePage() {
 							Resume Detected
 						</h2>
 						<p className="text-sm text-neutral-300 leading-relaxed">
-							We found an unfinished interview session. Continue where you left off or start a fresh session.
+							We found an unfinished interview session. Continue where you left
+							off or start a fresh session.
 						</p>
 						<div className="flex gap-3 justify-end pt-2">
 							<Button
 								variant="ghost"
 								size="sm"
 								onClick={() => {
-								// Resume: simply close modal
-								setShowResumeModal(false);
-							}}
+									// Resume: simply close modal
+									setShowResumeModal(false);
+								}}
 								className="bg-blue-500/80 hover:bg-blue-500 text-white"
 							>
 								Resume
@@ -244,11 +245,11 @@ export default function IntervieweePage() {
 								variant="outline"
 								size="sm"
 								onClick={async () => {
-								// Fully reset interview + persistence
-								dispatch(resetInterview());
-								await resetPersistedStore();
-								setShowResumeModal(false);
-							}}
+									// Fully reset interview + persistence
+									dispatch(resetInterview());
+									await resetPersistedStore();
+									setShowResumeModal(false);
+								}}
 								className="border-neutral-500/30 hover:bg-white/10"
 							>
 								Start Over
@@ -434,10 +435,10 @@ export default function IntervieweePage() {
 						<Button
 							size="sm"
 							onClick={async () => {
-							// Reset interview state & purge persistence to begin a fresh session
-							dispatch(resetInterview());
-							await resetPersistedStore();
-						}}
+								// Reset interview state & purge persistence to begin a fresh session
+								dispatch(resetInterview());
+								await resetPersistedStore();
+							}}
 							className="bg-blue-600 hover:bg-blue-500 text-white"
 						>
 							Start New Session

@@ -54,8 +54,10 @@ export default function InterviewerPage() {
 	}, []);
 
 	function scoreColor(score: number) {
-		if (score >= 80) return "bg-green-500/20 text-green-300 border-green-500/30";
-		if (score >= 50) return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+		if (score >= 80)
+			return "bg-green-500/20 text-green-300 border-green-500/30";
+		if (score >= 50)
+			return "bg-amber-500/20 text-amber-300 border-amber-500/30";
 		return "bg-red-500/15 text-red-300 border-red-500/30";
 	}
 
@@ -66,7 +68,8 @@ export default function InterviewerPage() {
 					Interviewer Dashboard
 				</h1>
 				<p className="text-sm text-neutral-400 max-w-2xl">
-					Review completed interview sessions. Search and open any candidate for detailed answers & scoring.
+					Review completed interview sessions. Search and open any candidate for
+					detailed answers & scoring.
 				</p>
 			</header>
 			<Card className="glass-surface">
@@ -98,15 +101,21 @@ export default function InterviewerPage() {
 					{loading && (
 						<div className="grid gap-2">
 							{Array.from({ length: 3 }).map((_, i) => (
-								<div key={i} className="h-14 rounded-md bg-white/5 animate-pulse" />
+								<div
+									key={i}
+									className="h-14 rounded-md bg-white/5 animate-pulse"
+								/>
 							))}
 						</div>
 					)}
 					{!loading && filtered.length === 0 && (
 						<div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-600/40 bg-white/5 px-6 py-12 text-center">
-							<p className="text-sm font-medium text-neutral-300 mb-1">No candidates yet</p>
+							<p className="text-sm font-medium text-neutral-300 mb-1">
+								No candidates yet
+							</p>
 							<p className="text-[11px] text-neutral-500 max-w-sm">
-								Completed interview records will appear here once users finish sessions.
+								Completed interview records will appear here once users finish
+								sessions.
 							</p>
 						</div>
 					)}
@@ -123,17 +132,25 @@ export default function InterviewerPage() {
 												<div className="space-y-0.5">
 													<p className="text-sm font-medium text-neutral-100 group-hover:text-white transition-colors">
 														{c.name}
-														<span className="ml-1 text-neutral-400 font-normal">({c.email})</span>
+														<span className="ml-1 text-neutral-400 font-normal">
+															({c.email})
+														</span>
 													</p>
 												</div>
-												<span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide ${scoreColor(c.finalScore)}`}>
+												<span
+													className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide ${scoreColor(
+														c.finalScore
+													)}`}
+												>
 													{c.finalScore} / 100
 												</span>
 											</div>
 											<p className="text-[11px] text-neutral-400 line-clamp-3 leading-relaxed flex-1">
-												{c.summary || '—'}
+												{c.summary || "—"}
 											</p>
-											<div className="mt-3 text-[10px] text-blue-400 font-medium opacity-0 group-hover:opacity-100 transition">View details →</div>
+											<div className="mt-3 text-[10px] text-blue-400 font-medium opacity-0 group-hover:opacity-100 transition">
+												View details →
+											</div>
 										</div>
 									</Link>
 								</li>
@@ -143,7 +160,9 @@ export default function InterviewerPage() {
 				</CardContent>
 			</Card>
 			<Separator />
-			<p className="text-[11px] text-neutral-500 tracking-wide">Prototype – styling iteration.</p>
+			<p className="text-[11px] text-neutral-500 tracking-wide">
+				Prototype – styling iteration.
+			</p>
 		</div>
 	);
 }
