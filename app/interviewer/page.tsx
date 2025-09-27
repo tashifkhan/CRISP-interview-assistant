@@ -64,7 +64,7 @@ export default function InterviewerPage() {
 						placeholder="Search by name or email"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
-						className="sm:max-w-xs"
+						className="sm:max-w-xs bg-white/60 dark:bg-white/10 hover:bg-white/70 dark:hover:bg-white/15"
 					/>
 				</CardHeader>
 				<CardContent className="space-y-4">

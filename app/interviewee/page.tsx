@@ -214,25 +214,15 @@ export default function IntervieweePage() {
 	return (
 		<div className="space-y-8">
 			{showResumeModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-					<div className="w-full max-w-md rounded-lg bg-white shadow-lg border p-6 space-y-4">
-						<h2 className="text-lg font-semibold tracking-tight">
-							Welcome Back
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/50">
+					<div className="w-full max-w-md glass-surface border border-[var(--border-color)] p-6 space-y-4 animate-fade-in-up">
+						<h2 className="text-lg font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300">
+							Resume Detected
 						</h2>
-						<p className="text-sm text-neutral-600">
-							An unfinished interview session was found. Would you like to
-							resume where you left off?
+						<p className="text-sm text-neutral-300 leading-relaxed">
+							We found an unfinished interview session. Continue where you left off or start a fresh session.
 						</p>
-						<div className="flex gap-3 justify-end">
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={() => {
-									setShowResumeModal(false);
-								}}
-							>
-								Resume
-							</Button>
+						<div className="flex gap-3 justify-end pt-2">
 							<Button
 								variant="outline"
 								size="sm"
@@ -240,8 +230,17 @@ export default function IntervieweePage() {
 									localStorage.clear();
 									location.reload();
 								}}
+								className="border-neutral-500/30 hover:bg-white/10"
 							>
 								Start Over
+							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => setShowResumeModal(false)}
+								className="bg-blue-500/80 hover:bg-blue-500 text-white"
+							>
+								Resume
 							</Button>
 						</div>
 					</div>
