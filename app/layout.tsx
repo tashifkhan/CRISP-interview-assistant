@@ -51,11 +51,11 @@ export default function RootLayout({
 							</nav>
 						</div>
 					</header>
-								<StoreProvider>
-									<main className="flex-1 mx-auto w-full max-w-6xl px-4 py-8">
-										{children}
-									</main>
-								</StoreProvider>
+					<StoreProvider>
+						<main className="flex-1 mx-auto w-full max-w-6xl px-4 py-8">
+							{children}
+						</main>
+					</StoreProvider>
 					<footer className="border-t py-6 text-center text-xs text-neutral-500 bg-white/50 backdrop-blur">
 						CRISP Interview Assistant &middot; Early Prototype
 					</footer>
