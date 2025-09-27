@@ -6,7 +6,7 @@ const diagram = `flowchart TD
   A([Start - Application Loaded]):::frontend
   A --> B[Application Initialization]:::frontend
   B --> C{Unfinished Interview Found?}:::frontend
-  C -->|Yes| D[Display "Welcome Back" Modal]:::frontend
+  C -->|Yes| D[Display Welcome Back Modal]:::frontend
   D --> E{Resume or Start New?}:::frontend
   E -->|Resume| F[Restore Interview State & Navigate]:::frontend
   F --> G[Display Question & Start Timer]:::frontend
@@ -34,7 +34,7 @@ const diagram = `flowchart TD
   Y --> Z[Generate Final Summary & Score]:::backend
   Z --> AA[Store Final Score Locally]:::frontend
   AA --> AB[Push Completed Interview to DB]:::frontend
-  AB --> AC[Save Record in MongoDB]:::backend
+  AB --> AC[Save Record in MongoDB]:::backend:::database
   AC --> AD[Interview Complete Message]:::frontend
   AD --> AE([Interviewer Dashboard]):::frontend
   AE --> AF[Request All Candidates]:::frontend
