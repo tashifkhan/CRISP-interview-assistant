@@ -26,7 +26,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}> 
+			<body
+				className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}
+			>
 				<div className="relative flex min-h-screen flex-col">
 					{/* Ambient gradients */}
 					<div className="pointer-events-none absolute inset-0">
@@ -35,15 +37,35 @@ export default function RootLayout({
 					</div>
 					<header className="sticky top-0 z-40 backdrop-blur-xl supports-[backdrop-filter]:bg-[rgba(34,40,49,0.55)] border-b border-white/10">
 						<div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-5">
-							<Link href="/" className="relative font-semibold text-lg tracking-tight">
+							<Link
+								href="/"
+								className="relative font-semibold text-lg tracking-tight"
+							>
 								<span className="accent-gradient-text">CRISP</span>
 							</Link>
 							<nav className="flex items-center gap-6 text-sm text-[var(--foreground-muted)]">
-								<Link href="/interviewee" className="hover:text-[var(--foreground)] transition-colors">Interviewee</Link>
-								<Link href="/interviewer" className="hover:text-[var(--foreground)] transition-colors">Interviewer</Link>
+								<Link
+									href="/interviewee"
+									className="hover:text-[var(--foreground)] transition-colors"
+								>
+									Interviewee
+								</Link>
+								<Link
+									href="/interviewer"
+									className="hover:text-[var(--foreground)] transition-colors"
+								>
+									Interviewer
+								</Link>
 							</nav>
 							<div className="ml-auto flex items-center gap-4">
-								<a href="https://github.com/tashifkhan/CRISP-interview-assistant" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">GitHub</a>
+								<a
+									href="https://github.com/tashifkhan/CRISP-interview-assistant"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-xs text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
+								>
+									GitHub
+								</a>
 							</div>
 						</div>
 					</header>
@@ -53,7 +75,10 @@ export default function RootLayout({
 						</main>
 					</StoreProvider>
 					<footer className="mt-auto py-8 text-center text-[11px] text-[var(--foreground-muted)] border-t border-white/10 backdrop-blur-xl supports-[backdrop-filter]:bg-[rgba(34,40,49,0.55)]">
-						<span className="tracking-wide">CRISP Interview Assistant · <span className="text-[rgba(255,255,255,0.45)]">Prototype</span></span>
+						<span className="tracking-wide">
+							CRISP Interview Assistant ·{" "}
+							<span className="text-[rgba(255,255,255,0.45)]">Prototype</span>
+						</span>
 					</footer>
 				</div>
 			</body>
