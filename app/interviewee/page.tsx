@@ -12,6 +12,7 @@ import {
 	recordAnswer,
 	recordScore,
 	advanceQuestion,
+	setFinalSummary,
 } from "@/store/interviewSlice";
 import { RootState } from "@/store";
 import { useState, useEffect, useCallback } from "react";
@@ -86,6 +87,42 @@ export default function IntervieweePage() {
 			setAnswerDraft("");
 		}
 	}, [interview.status, interview.currentQuestionIndex, fetchQuestion]);
+
+	// When interview reaches completed state, request summary if missing
+	useEffect(() => {
+		if (interview.status === "completed" && !interview.summary) {
+			(async () => {
+				try {
+					const res = await fetch("/api/interview/generate-summary", {
+						method: "POST",
+						body: JSON.stringify({ questions: interview.questions }),
+					});
+					if (res.ok) {
+						const data = await res.json();
+						dispatch(setFinalSummary({ summary: data.summary, finalScore: data.finalScore }));
+						// Push to server
+						await fetch("/api/interview/complete-interview", {
+							method: "POST",
+							body: JSON.stringify({
+								version: 1,
+								sessionId: interview.sessionId,
+								role: interview.role,
+								profile: interview.profile,
+								questions: interview.questions,
+								finalScore: data.finalScore,
+								summary: data.summary,
+								createdAt: interview.createdAt,
+								completedAt: interview.completedAt,
+							}),
+						});
+					}
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e);
+				}
+			})();
+		}
+	}, [interview.status, interview.summary, interview.questions, interview.sessionId, interview.role, interview.profile, interview.createdAt, interview.completedAt, dispatch]);
 
 	const submitAnswer = async () => {
 		if (!current) return;
