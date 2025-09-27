@@ -2,19 +2,19 @@
 
 An AI-powered technical interview assistant built with Next.js (App Router) that provides:
 
-* Interviewee chat interface (resume upload, timed AI Q&A, local persistence)
-* Interviewer dashboard (scores, summaries, searchable/sortable list, detailed transcripts)
-* Hybrid persistence (IndexedDB for in-progress sessions, MongoDB for completed interviews)
-* LangChain / LangGraph powered question generation, scoring, summarization
+- Interviewee chat interface (resume upload, timed AI Q&A, local persistence)
+- Interviewer dashboard (scores, summaries, searchable/sortable list, detailed transcripts)
+- Hybrid persistence (IndexedDB for in-progress sessions, MongoDB for completed interviews)
+- LangChain / LangGraph powered question generation, scoring, summarization
 
 ## High-Level Architecture
 
-| Layer | Responsibilities |
-| ----- | ---------------- |
-| Frontend (Next.js) | Chat UI, timers, resume parsing, local state & recovery, dashboard views |
-| API Routes | LLM orchestration, evaluation, summary generation, MongoDB persistence |
-| Local (IndexedDB) | In-progress interview state (questions, answers, timers, profile) |
-| MongoDB | Completed interviews (profile + Q&A + per-question + final summary + scores) |
+| Layer              | Responsibilities                                                             |
+| ------------------ | ---------------------------------------------------------------------------- |
+| Frontend (Next.js) | Chat UI, timers, resume parsing, local state & recovery, dashboard views     |
+| API Routes         | LLM orchestration, evaluation, summary generation, MongoDB persistence       |
+| Local (IndexedDB)  | In-progress interview state (questions, answers, timers, profile)            |
+| MongoDB            | Completed interviews (profile + Q&A + per-question + final summary + scores) |
 
 ## Interview Flow
 
