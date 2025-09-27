@@ -15,7 +15,19 @@
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.1",
 		"tailwind-merge": "^2.5.2",
-		"lucide-react": "^0.453.0"
+		"lucide-react": "^0.453.0",
+		"@radix-ui/react-slot": "^1.0.2",
+		"@reduxjs/toolkit": "^2.2.7",
+		"react-redux": "^9.2.0",
+		"redux-persist": "^6.0.0",
+		"localforage": "^1.10.0",
+		"pdfjs-dist": "^4.4.168",
+		"mammoth": "^1.7.1",
+		"langchain": "^0.3.1",
+		"@langchain/langgraph": "^0.2.6",
+		"mongodb": "^6.9.0",
+		"zod": "^3.23.8",
+		"nanoid": "^5.0.7"
 	},
 	"devDependencies": {
 		"typescript": "^5",
@@ -26,6 +38,8 @@
 		"tailwindcss": "^4",
 		"eslint": "^9",
 		"eslint-config-next": "15.5.4",
-		"@eslint/eslintrc": "^3"
+		"@eslint/eslintrc": "^3",
+		"@types/mammoth": "^1.4.4",
+		"@types/localforage": "^0.0.34"
 	}
 }
