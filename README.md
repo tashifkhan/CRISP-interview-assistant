@@ -73,6 +73,8 @@ Add to `.env.local`:
 GEMINI_API_KEY=your_key_here
 # Optional: override default fast model (gemini-1.5-flash)
 CRISP_GEMINI_MODEL=gemini-1.5-pro
+# Optional: switch engine (direct | chain). 'chain' uses LangChain; direct uses raw SDK.
+AI_ENGINE=chain
 ```
 
 Behavior:
@@ -81,6 +83,12 @@ Behavior:
 - If absent: deterministic mock question bank + heuristic scoring & summary.
 
 All AI logic is centralized in `lib/ai/provider.ts` for future multi-provider expansion.
+
+### LangChain / LangGraph
+
+- Chains implemented in `lib/ai/chain.ts` (question, evaluation, summary).
+- Experimental graph scaffold in `lib/ai/graph.ts` (currently invoked manually; ready for future adaptive flows).
+- Toggle with `AI_ENGINE=chain` to route through LangChain; omit or set to `direct` for lightweight provider calls.
 
 ## Candidate Detail Page
 

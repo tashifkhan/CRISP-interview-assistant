@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { lcGenerateQuestion, lcEvaluateAnswer, lcSummarize } from './chain';
 
 // Shared types (lightweight to avoid circular deps)
 export interface GenerateQuestionArgs { index: number; difficulty: string; role: string; }
@@ -57,6 +58,9 @@ function tryParseJson(raw: string) {
 
 // --- Gemini-backed implementations ---
 export async function generateQuestion(args: GenerateQuestionArgs) {
+  if (process.env.AI_ENGINE === 'chain') {
+    return lcGenerateQuestion({ role: args.role, difficulty: args.difficulty, index: args.index });
+  }
   if (!hasGemini()) return { question: mockQuestion(args.index, args.difficulty), source: 'mock' as const };
   try {
     const model = getModel();
@@ -70,6 +74,9 @@ export async function generateQuestion(args: GenerateQuestionArgs) {
 }
 
 export async function evaluateAnswer(args: EvaluateAnswerArgs) {
+  if (process.env.AI_ENGINE === 'chain') {
+    return lcEvaluateAnswer({ question: args.question, answer: args.answer });
+  }
   if (!hasGemini()) return heuristicScore(args.question, args.answer);
   try {
     const model = getModel();
@@ -88,6 +95,9 @@ export async function evaluateAnswer(args: EvaluateAnswerArgs) {
 }
 
 export async function summarizeInterview(args: SummarizeArgs) {
+  if (process.env.AI_ENGINE === 'chain') {
+    return lcSummarize({ questions: args.questions, finalScore: args.finalScore });
+  }
   const answered = args.questions.filter(q => q.answer);
   const totalScore = answered.reduce((acc: number, q: any) => acc + (q.score || 0), 0);
   const maxScore = args.questions.length * 5;
