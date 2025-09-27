@@ -53,7 +53,17 @@ const diagram = `flowchart TD
   classDef database fill:#172554,stroke:#fbbf24,stroke-width:1px,color:#f5f5f5;
 `;
 
-export function WorkflowChart() {
+export interface WorkflowChartProps {
+	onSvg?: (svg: string) => void;
+	className?: string;
+	maxHeight?: string;
+}
+
+export function WorkflowChart({
+	onSvg,
+	className = "",
+	maxHeight = "max-h-[650px]",
+}: WorkflowChartProps) {
 	const [html, setHtml] = useState<string>("");
 	useEffect(() => {
 		mermaid.initialize({
@@ -61,12 +71,15 @@ export function WorkflowChart() {
 			theme: "dark",
 			securityLevel: "loose",
 		});
-		mermaid
-			.render("workflowDiagram", diagram)
-			.then((res: any) => setHtml(res.svg));
-	}, []);
+		mermaid.render("workflowDiagram", diagram).then((res: any) => {
+			setHtml(res.svg);
+			onSvg?.(res.svg);
+		});
+	}, [onSvg]);
 	return (
-		<div className="relative rounded-xl border border-[var(--border-color)] bg-gradient-to-br from-white/5 to-white/2 p-4 md:p-6 overflow-auto max-h-[650px]">
+		<div
+			className={`relative rounded-xl border border-[var(--border-color)] bg-gradient-to-br from-white/5 to-white/2 p-4 md:p-6 overflow-auto ${maxHeight} ${className}`}
+		>
 			<div
 				dangerouslySetInnerHTML={{ __html: html }}
 				className="mermaid text-[12px] [&_svg]:w-full [&_svg]:h-auto"

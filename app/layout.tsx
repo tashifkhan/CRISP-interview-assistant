@@ -58,7 +58,7 @@ export default function RootLayout({
 							</nav>
 							<div className="ml-auto flex items-center gap-3">
 								<a
-									href="https://github.com"
+									href="https://github.com/tashifkhan/CRISP-interview-assistant"
 									target="_blank"
 									className="text-xs text-neutral-400 hover:text-white transition-colors"
 								>
