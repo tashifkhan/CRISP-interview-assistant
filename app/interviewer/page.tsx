@@ -64,18 +64,17 @@ export default function InterviewerPage() {
 	return (
 		<div className="space-y-8">
 			<header className="space-y-2">
-				<h1 className="text-3xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-blue-300">
+				<h1 className="text-3xl font-semibold tracking-tight accent-gradient-text">
 					Interviewer Dashboard
 				</h1>
-				<p className="text-sm text-neutral-400 max-w-2xl">
-					Review completed interview sessions. Search and open any candidate for
-					detailed answers & scoring.
+				<p className="text-sm text-[var(--foreground-muted)] max-w-2xl">
+					Review completed interview sessions. Search and open any candidate for detailed answers & scoring.
 				</p>
 			</header>
 			<Card className="glass-surface">
 				<CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between pb-2">
-					<CardTitle className="text-sm font-medium text-neutral-300 flex items-center gap-2">
-						<span className="inline-flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+					<CardTitle className="text-sm font-medium text-[var(--foreground-muted)] flex items-center gap-2">
+						<span className="inline-flex h-2 w-2 rounded-full bg-[var(--accent)] animate-pulse" />
 						Candidates
 					</CardTitle>
 					<div className="relative w-full md:w-auto md:min-w-[260px]">
@@ -93,7 +92,7 @@ export default function InterviewerPage() {
 							placeholder="Search by name or email"
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
-							className="pl-9 bg-white/50 dark:bg-white/5 hover:bg-white/70 dark:hover:bg-white/10"
+							className="pl-9 bg-white/5 hover:bg-white/10 text-[var(--foreground)] placeholder:text-[var(--foreground-muted)]"
 						/>
 					</div>
 				</CardHeader>
@@ -110,10 +109,10 @@ export default function InterviewerPage() {
 					)}
 					{!loading && filtered.length === 0 && (
 						<div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-600/40 bg-white/5 px-6 py-12 text-center">
-							<p className="text-sm font-medium text-neutral-300 mb-1">
+							<p className="text-sm font-medium text-[var(--foreground)] mb-1">
 								No candidates yet
 							</p>
-							<p className="text-[11px] text-neutral-500 max-w-sm">
+							<p className="text-[11px] text-[var(--foreground-muted)] max-w-sm">
 								Completed interview records will appear here once users finish
 								sessions.
 							</p>
@@ -130,7 +129,7 @@ export default function InterviewerPage() {
 										<div className="flex flex-col h-full">
 											<div className="flex items-start justify-between gap-4 mb-2">
 												<div className="space-y-0.5">
-													<p className="text-sm font-medium text-neutral-100 group-hover:text-white transition-colors">
+													<p className="text-sm font-medium text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">
 														{c.name}
 														<span className="ml-1 text-neutral-400 font-normal">
 															({c.email})

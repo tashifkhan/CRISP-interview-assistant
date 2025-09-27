@@ -1,21 +1,28 @@
 @import "tailwindcss";
 
 /* Design Tokens */
+/* Base palette (requested) */
 :root {
-  --background: #0f1115;
-  --background-alt: #14181f;
-  --foreground: #f5f7fa;
-  --foreground-muted: #c9d1d9;
-  --accent: #3b82f6;
-  --accent-foreground: #ffffff;
+  --brand-bg-1: #222831; /* rgb(34,40,49) */
+  --brand-bg-2: #393E46; /* rgb(57,62,70) */
+  --brand-accent: #00ADB5; /* rgb(0,173,181) */
+  --brand-fg: #EEEEEE; /* rgb(238,238,238) */
+  --brand-fg-muted: rgba(238,238,238,0.62);
+  --background: var(--brand-bg-1);
+  --background-alt: var(--brand-bg-2);
+  --foreground: var(--brand-fg);
+  --foreground-muted: var(--brand-fg-muted);
+  --accent: var(--brand-accent);
+  --accent-foreground: #042c2d;
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
-  --border-color: rgba(255,255,255,0.08);
-  --gradient-start: #0f1115;
-  --gradient-end: #1d2532;
-  --surface-glass: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  --shadow-soft: 0 4px 12px -2px rgba(0,0,0,0.35), 0 2px 4px -1px rgba(0,0,0,0.4);
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --border-color: rgba(255,255,255,0.09);
+  --gradient-start: var(--brand-bg-1);
+  --gradient-end: var(--brand-bg-2);
+  --surface-glass: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+  --shadow-soft: 0 4px 22px -4px rgba(0,0,0,0.55), 0 2px 8px -2px rgba(0,0,0,0.55);
+  --focus-ring: 0 0 0 2px rgba(0,173,181,0.6), 0 0 0 4px rgba(0,173,181,0.25);
 }
 
 /* Theme mapping (removed @theme inline for compatibility) */
@@ -42,8 +49,10 @@
 
 body {
   min-height: 100vh;
-  background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.08), transparent 60%),
-              linear-gradient(140deg, var(--gradient-start), var(--gradient-end));
+  background:
+    radial-gradient(circle at 18% 22%, rgba(0,173,181,0.18), transparent 60%),
+    radial-gradient(circle at 82% 78%, rgba(0,173,181,0.12), transparent 65%),
+    linear-gradient(140deg, var(--gradient-start), var(--gradient-end));
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -76,7 +85,17 @@ body {
 .animate-fade-in-up { animation: fadeInUp 0.45s ease forwards; }
 
 /* Focus ring refinement */
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; box-shadow: var(--focus-ring); }
+
+/* Accent utilities */
+.accent-gradient-text { background: linear-gradient(90deg,#EEEEEE 0%,#EEEEEE 40%,#00ADB5 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.badge-accent { background: rgba(0,173,181,0.12); color: #00ADB5; border: 1px solid rgba(0,173,181,0.35); }
+.btn-accent { background:#00ADB5; color:#042c2d; }
+.btn-accent:hover { background:#06c3cc; }
+.surface-subtle { background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03)); }
+
+/* Card subtle divider */
+.card-divider { height:1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); }
 
 /* Typography tweaks */
 h1,h2,h3,h4 { letter-spacing: -0.02em; }

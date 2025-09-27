@@ -259,12 +259,11 @@ export default function IntervieweePage() {
 				</div>
 			)}
 			<div className="space-y-3">
-				<h1 className="text-3xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-blue-300">
+				<h1 className="text-3xl font-semibold tracking-tight accent-gradient-text">
 					Interview Session
 				</h1>
-				<p className="text-sm text-neutral-400 max-w-prose">
-					Upload your resume to parse key profile details. You can resume an
-					unfinished session at any time.
+				<p className="text-sm text-[var(--foreground-muted)] max-w-prose">
+					Upload your resume to parse key profile details. You can resume an unfinished session at any time.
 				</p>
 				<div className="flex flex-wrap gap-2 text-[10px] font-medium">
 					<Badge
