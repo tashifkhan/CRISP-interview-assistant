@@ -12,6 +12,7 @@
 		"@google/generative-ai": "^0.21.0",
 		"@langchain/google-genai": "^0.2.18",
 		"@langchain/langgraph": "^0.4.9",
+		"@radix-ui/react-select": "^2.0.0",
 		"@radix-ui/react-slot": "^1.0.2",
 		"@reduxjs/toolkit": "^2.2.7",
 		"class-variance-authority": "^0.7.0",

@@ -3,6 +3,13 @@ import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectTrigger,
+	SelectValue,
+	SelectContent,
+	SelectItem,
+} from "@/components/ui/select";
 
 interface CandidateSummary {
 	id: string;
@@ -173,18 +180,24 @@ export default function InterviewerPage() {
 						</div>
 
 						<div className="flex flex-col sm:flex-row gap-3">
-							{/* Sort Dropdown */}
-							<select
-								value={sortBy}
-								onChange={(e) =>
-									setSortBy(e.target.value as "date" | "score" | "name")
-								}
-								className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[var(--foreground)] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
-							>
-								<option value="date">Latest First</option>
-								<option value="score">Highest Score</option>
-								<option value="name">Name A-Z</option>
-							</select>
+							{/* Sort Dropdown (Radix Select) */}
+							<div className="min-w-[160px]">
+								<Select
+									value={sortBy}
+									onValueChange={(v) =>
+										setSortBy(v as "date" | "score" | "name")
+									}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Sort" />
+									</SelectTrigger>
+									<SelectContent position="popper">
+										<SelectItem value="date">Latest First</SelectItem>
+										<SelectItem value="score">Highest Score</SelectItem>
+										<SelectItem value="name">Name A-Z</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
 
 							{/* Search Input */}
 							<div className="relative min-w-[280px]">
