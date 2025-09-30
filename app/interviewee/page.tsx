@@ -19,11 +19,41 @@ import {
 	resetInterview,
 } from "@/store/interviewSlice";
 import { resetPersistedStore } from "@/store";
-import { RootState } from "@/store";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+
+interface InterviewProfile {
+	name?: string;
+	email?: string;
+	phone?: string;
+	resumeExtracted?: boolean;
+}
+
+interface InterviewState {
+	status: string;
+	topic?: string;
+	resumeData?: Record<string, unknown>;
+	profile: InterviewProfile;
+	currentQuestionIndex: number;
+	questions: Array<{
+		id: string;
+		index: number;
+		difficulty: string;
+		question?: string;
+		answer?: string;
+		score?: number;
+		allottedMs: number;
+		remainingMs?: number;
+		startedAt?: number;
+		submittedAt?: number;
+	}>;
+	role: string;
+	sessionId?: string;
+	summary?: string;
+	finalScore?: number;
+	createdAt?: number;
+	completedAt?: number;
+}
 
 // Topic options for interview
 const INTERVIEW_TOPICS = [
@@ -76,7 +106,9 @@ const INTERVIEW_TOPICS = [
 
 export default function IntervieweePage() {
 	const dispatch = useDispatch();
-	const interview = useSelector((s: any) => s.interview);
+	const interview = useSelector(
+		(s: { interview: InterviewState }) => s.interview
+	);
 	const [uploading, setUploading] = useState(false);
 	const [parseError, setParseError] = useState<string | null>(null);
 	const [remainingMs, setRemainingMs] = useState<number | null>(null);
@@ -99,7 +131,7 @@ export default function IntervieweePage() {
 		) {
 			setShowResumeModal(true);
 		}
-	}, []);
+	}, [interview.status]);
 
 	// Stable question fetch (avoid depending on the entire questions array so typing isn't reset)
 	const fetchQuestion = useCallback(
@@ -120,7 +152,6 @@ export default function IntervieweePage() {
 					dispatch(setQuestionText({ index, text: data.question }));
 				}
 			} catch (e) {
-				// eslint-disable-next-line no-console
 				console.error(e);
 			}
 		},
@@ -159,7 +190,7 @@ export default function IntervieweePage() {
 			}
 			dispatch(advanceQuestion());
 		}
-	}, [interview.status, current?.remainingMs]);
+	}, [interview.status, current?.remainingMs, answerDraft, current, dispatch]);
 
 	// Load question text & reset draft ONLY when question index changes
 	useEffect(() => {
@@ -212,7 +243,6 @@ export default function IntervieweePage() {
 						});
 					}
 				} catch (e) {
-					// eslint-disable-next-line no-console
 					console.error(e);
 				}
 			})();
@@ -248,7 +278,6 @@ export default function IntervieweePage() {
 				dispatch(recordScore({ index: current.index, score: data.score }));
 			}
 		} catch (e) {
-			// eslint-disable-next-line no-console
 			console.error(e);
 		}
 		dispatch(advanceQuestion());
@@ -272,15 +301,15 @@ export default function IntervieweePage() {
 			dispatch(setResumeData(parsed));
 			dispatch(markResumeExtracted());
 			dispatch(startProfileCollection());
-		} catch (e: any) {
-			setParseError(e.message || "Failed to parse resume");
+		} catch (e: unknown) {
+			setParseError(e instanceof Error ? e.message : "Failed to parse resume");
 		} finally {
 			setUploading(false);
 		}
 	};
 
 	const missingFields = ["name", "email", "phone"].filter(
-		(f) => !(interview.profile as any)[f]
+		(f) => !(interview.profile as InterviewProfile)[f as keyof InterviewProfile]
 	);
 
 	return (
@@ -474,7 +503,7 @@ export default function IntervieweePage() {
 					<CardContent className="p-8 space-y-8">
 						<p className="text-[var(--foreground-muted)] leading-relaxed">
 							Please verify your profile information and select the type of
-							interview you'd like to take.
+							interview you&apos;d like to take.
 						</p>
 
 						{/* Topic Selection */}
@@ -531,7 +560,9 @@ export default function IntervieweePage() {
 											{field === "phone" ? "Phone Number" : field}
 										</label>
 										<Input
-											value={(interview.profile as any)[field] || ""}
+											value={
+												(interview.profile as InterviewProfile)[field] || ""
+											}
 											onChange={(e) =>
 												dispatch(
 													setProfileField({ key: field, value: e.target.value })
@@ -565,8 +596,10 @@ export default function IntervieweePage() {
 										? "AI-powered"
 										: "basic"}{" "}
 									extraction
-									{interview.resumeData.skills?.length &&
-										` • ${interview.resumeData.skills.length} skills identified`}
+									{Array.isArray(interview.resumeData.skills) &&
+										` • ${
+											(interview.resumeData.skills as string[]).length
+										} skills identified`}
 								</p>
 							</div>
 						)}

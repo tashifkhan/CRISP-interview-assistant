@@ -37,7 +37,7 @@ export async function lcGenerateQuestion(params: {
   difficulty: string; 
   index: number;
   topic?: string;
-  resumeData?: any;
+  resumeData?: Record<string, unknown>;
 }) {
   if (!process.env.GEMINI_API_KEY) {
     return { question: 'Fallback: Explain event loop vs call stack in JS.', source: 'mock' as const };
@@ -46,12 +46,18 @@ export async function lcGenerateQuestion(params: {
   // Prepare resume context
   let resumeContext = '';
   if (params.resumeData) {
-    const { name, skills, experience, education, summary } = params.resumeData;
+    const data = params.resumeData;
+    const name = data.name as string;
+    const skills = Array.isArray(data.skills) ? data.skills as string[] : [];
+    const experience = Array.isArray(data.experience) ? data.experience as string[] : [];
+    const education = Array.isArray(data.education) ? data.education as string[] : [];
+    const summary = data.summary as string;
+    
     resumeContext = `Candidate Background:
 ${name ? `Name: ${name}` : ''}
-${skills?.length ? `Skills: ${skills.join(', ')}` : ''}
-${experience?.length ? `Experience: ${experience.slice(0, 3).join('; ')}` : ''}
-${education?.length ? `Education: ${education.slice(0, 2).join('; ')}` : ''}
+${skills.length ? `Skills: ${skills.join(', ')}` : ''}
+${experience.length ? `Experience: ${experience.slice(0, 3).join('; ')}` : ''}
+${education.length ? `Education: ${education.slice(0, 2).join('; ')}` : ''}
 ${summary ? `Summary: ${summary}` : ''}
 
 Tailor the question to leverage their background and skills.`;

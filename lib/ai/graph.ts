@@ -18,7 +18,7 @@ export type GraphState = {
   finalScore?: number;
   summary?: string;
   topic?: string;
-  resumeData?: any;
+  resumeData?: Record<string, unknown>;
 };
 
 // Node: generate question if missing
@@ -29,8 +29,8 @@ export const nodeGenerate = async (state: GraphState): Promise<GraphState> => {
       role: state.role, 
       difficulty: q.difficulty, 
       index: q.index,
-      topic: (state as any).topic,
-      resumeData: (state as any).resumeData
+      topic: state.topic,
+      resumeData: state.resumeData
     });
     q.question = res.question;
   }

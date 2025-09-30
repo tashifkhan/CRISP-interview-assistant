@@ -83,7 +83,7 @@ export function WorkflowChart({
 				tertiaryBkg: "#393E46",
 			},
 		});
-		mermaid.render("workflowDiagram", diagram).then((res: any) => {
+		mermaid.render("workflowDiagram", diagram).then((res: { svg: string }) => {
 			setHtml(res.svg);
 			onSvg?.(res.svg);
 		});

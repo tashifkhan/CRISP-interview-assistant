@@ -7,7 +7,7 @@ export interface GenerateQuestionArgs {
   difficulty: string; 
   role: string; 
   topic?: string;
-  resumeData?: any;
+  resumeData?: Record<string, unknown>;
 }
 export interface EvaluateAnswerArgs { question: string; answer: string; }
 export interface SummarizeArgs { questions: InterviewQuestion[]; finalScore: number; role?: string; }

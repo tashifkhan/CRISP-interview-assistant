@@ -3,7 +3,6 @@ import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 
 interface CandidateSummary {
 	id: string;
@@ -22,7 +21,7 @@ export default function InterviewerPage() {
 	const [sortBy, setSortBy] = useState<"score" | "date" | "name">("date");
 
 	const filtered = useMemo(() => {
-		let result = candidates.filter(
+		const result = candidates.filter(
 			(c) =>
 				c.name.toLowerCase().includes(search.toLowerCase()) ||
 				c.email.toLowerCase().includes(search.toLowerCase())
@@ -37,7 +36,10 @@ export default function InterviewerPage() {
 					return a.name.localeCompare(b.name);
 				case "date":
 				default:
-					return new Date(b.completedAt || 0).getTime() - new Date(a.completedAt || 0).getTime();
+					return (
+						new Date(b.completedAt || 0).getTime() -
+						new Date(a.completedAt || 0).getTime()
+					);
 			}
 		});
 
@@ -51,19 +53,22 @@ export default function InterviewerPage() {
 				if (res.ok) {
 					const data = await res.json();
 					setCandidates(
-						(data.candidates || []).map((c: any) => ({
-							id: c.sessionId || c._id,
-							name: c.profile?.name || "Unknown",
-							email: c.profile?.email || "n/a",
-							finalScore: c.finalScore ?? 0,
-							summary: c.summary || "",
-							completedAt: c.completedAt || c.createdAt,
-							questionsCount: c.questions?.length || 6,
+						(data.candidates || []).map((c: Record<string, unknown>) => ({
+							id: (c.sessionId || c._id) as string,
+							name: ((c.profile as Record<string, unknown>)?.name ||
+								"Unknown") as string,
+							email: ((c.profile as Record<string, unknown>)?.email ||
+								"n/a") as string,
+							finalScore: (c.finalScore ?? 0) as number,
+							summary: (c.summary || "") as string,
+							completedAt: (c.completedAt || c.createdAt) as number,
+							questionsCount: Array.isArray(c.questions)
+								? c.questions.length
+								: 6,
 						}))
 					);
 				}
 			} catch (e) {
-				// eslint-disable-next-line no-console
 				console.error(e);
 			} finally {
 				setLoading(false);
@@ -74,8 +79,7 @@ export default function InterviewerPage() {
 	function scoreColor(score: number) {
 		if (score >= 80)
 			return "bg-emerald-500/15 text-emerald-400 border-emerald-500/25";
-		if (score >= 60)
-			return "bg-blue-500/15 text-blue-400 border-blue-500/25";
+		if (score >= 60) return "bg-blue-500/15 text-blue-400 border-blue-500/25";
 		if (score >= 40)
 			return "bg-amber-500/15 text-amber-400 border-amber-500/25";
 		return "bg-red-500/15 text-red-400 border-red-500/25";
@@ -90,8 +94,13 @@ export default function InterviewerPage() {
 
 	const stats = useMemo(() => {
 		const total = candidates.length;
-		const avgScore = total > 0 ? Math.round(candidates.reduce((acc, c) => acc + c.finalScore, 0) / total) : 0;
-		const highPerformers = candidates.filter(c => c.finalScore >= 70).length;
+		const avgScore =
+			total > 0
+				? Math.round(
+						candidates.reduce((acc, c) => acc + c.finalScore, 0) / total
+				  )
+				: 0;
+		const highPerformers = candidates.filter((c) => c.finalScore >= 70).length;
 		return { total, avgScore, highPerformers };
 	}, [candidates]);
 
@@ -104,23 +113,36 @@ export default function InterviewerPage() {
 						Interviewer Dashboard
 					</h1>
 					<p className="text-lg text-[var(--foreground-muted)] max-w-2xl mx-auto leading-relaxed">
-						Review completed interview sessions, analyze candidate performance, and make informed hiring decisions
+						Review completed interview sessions, analyze candidate performance,
+						and make informed hiring decisions
 					</p>
 				</div>
 
 				{/* Quick Stats */}
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
 					<div className="p-4 rounded-xl bg-gradient-to-br from-white/8 to-white/3 border border-white/10">
-						<div className="text-2xl font-bold text-[var(--foreground)]">{stats.total}</div>
-						<div className="text-sm text-[var(--foreground-muted)]">Total Interviews</div>
+						<div className="text-2xl font-bold text-[var(--foreground)]">
+							{stats.total}
+						</div>
+						<div className="text-sm text-[var(--foreground-muted)]">
+							Total Interviews
+						</div>
 					</div>
 					<div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20">
-						<div className="text-2xl font-bold text-blue-400">{stats.avgScore}</div>
-						<div className="text-sm text-[var(--foreground-muted)]">Average Score</div>
+						<div className="text-2xl font-bold text-blue-400">
+							{stats.avgScore}
+						</div>
+						<div className="text-sm text-[var(--foreground-muted)]">
+							Average Score
+						</div>
 					</div>
 					<div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20">
-						<div className="text-2xl font-bold text-emerald-400">{stats.highPerformers}</div>
-						<div className="text-sm text-[var(--foreground-muted)]">High Performers</div>
+						<div className="text-2xl font-bold text-emerald-400">
+							{stats.highPerformers}
+						</div>
+						<div className="text-sm text-[var(--foreground-muted)]">
+							High Performers
+						</div>
 					</div>
 				</div>
 			</div>
@@ -131,7 +153,11 @@ export default function InterviewerPage() {
 					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 						<div className="flex items-center gap-3">
 							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-								<svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+								<svg
+									className="w-4 h-4 text-white"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+								>
 									<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 								</svg>
 							</div>
@@ -140,7 +166,8 @@ export default function InterviewerPage() {
 							</CardTitle>
 							{!loading && (
 								<span className="px-3 py-1 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-medium">
-									{filtered.length} {filtered.length === 1 ? 'candidate' : 'candidates'}
+									{filtered.length}{" "}
+									{filtered.length === 1 ? "candidate" : "candidates"}
 								</span>
 							)}
 						</div>
@@ -149,7 +176,9 @@ export default function InterviewerPage() {
 							{/* Sort Dropdown */}
 							<select
 								value={sortBy}
-								onChange={(e) => setSortBy(e.target.value as any)}
+								onChange={(e) =>
+									setSortBy(e.target.value as "date" | "score" | "name")
+								}
 								className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[var(--foreground)] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60"
 							>
 								<option value="date">Latest First</option>
@@ -195,22 +224,31 @@ export default function InterviewerPage() {
 					{!loading && filtered.length === 0 && (
 						<div className="text-center py-16">
 							<div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center">
-								<svg className="w-8 h-8 text-[var(--foreground-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+								<svg
+									className="w-8 h-8 text-[var(--foreground-muted)]"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={1.5}
+										d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+									/>
 								</svg>
 							</div>
 							<h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
-								{search ? 'No matches found' : 'No interviews yet'}
+								{search ? "No matches found" : "No interviews yet"}
 							</h3>
 							<p className="text-[var(--foreground-muted)] max-w-sm mx-auto">
-								{search 
-									? 'Try adjusting your search terms or filters'
-									: 'Completed interview records will appear here once candidates finish their sessions'
-								}
+								{search
+									? "Try adjusting your search terms or filters"
+									: "Completed interview records will appear here once candidates finish their sessions"}
 							</p>
 							{search && (
 								<button
-									onClick={() => setSearch('')}
+									onClick={() => setSearch("")}
 									className="mt-4 px-4 py-2 rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/25 hover:bg-blue-500/20 transition-colors"
 								>
 									Clear Search
@@ -243,7 +281,11 @@ export default function InterviewerPage() {
 													<span className="text-lg">
 														{scoreIcon(candidate.finalScore)}
 													</span>
-													<span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${scoreColor(candidate.finalScore)}`}>
+													<span
+														className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${scoreColor(
+															candidate.finalScore
+														)}`}
+													>
 														{candidate.finalScore}
 													</span>
 												</div>
@@ -274,24 +316,56 @@ export default function InterviewerPage() {
 											<div className="flex items-center justify-between pt-3 border-t border-white/10">
 												<div className="flex items-center gap-4 text-xs text-[var(--foreground-muted)]">
 													<span className="flex items-center gap-1">
-														<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+														<svg
+															className="w-3 h-3"
+															fill="none"
+															stroke="currentColor"
+															viewBox="0 0 24 24"
+														>
+															<path
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																strokeWidth={2}
+																d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+															/>
 														</svg>
 														{candidate.questionsCount || 6} questions
 													</span>
 													{candidate.completedAt && (
 														<span className="flex items-center gap-1">
-															<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+															<svg
+																className="w-3 h-3"
+																fill="none"
+																stroke="currentColor"
+																viewBox="0 0 24 24"
+															>
+																<path
+																	strokeLinecap="round"
+																	strokeLinejoin="round"
+																	strokeWidth={2}
+																	d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+																/>
 															</svg>
-															{new Date(candidate.completedAt).toLocaleDateString()}
+															{new Date(
+																candidate.completedAt
+															).toLocaleDateString()}
 														</span>
 													)}
 												</div>
 												<div className="text-xs text-blue-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
 													View Details
-													<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+													<svg
+														className="w-3 h-3"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+													>
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															strokeWidth={2}
+															d="M9 5l7 7-7 7"
+														/>
 													</svg>
 												</div>
 											</div>

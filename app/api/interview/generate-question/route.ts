@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     difficulty: string; 
     role: string;
     topic?: string;
-    resumeData?: any;
+    resumeData?: Record<string, unknown>;
   };
   const result = await generateQuestion({ index, difficulty, role, topic, resumeData });
   return NextResponse.json(result);

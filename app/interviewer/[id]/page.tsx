@@ -58,26 +58,28 @@ export default async function CandidateDetailPage({
 					Transcript
 				</h2>
 				<div className="space-y-5">
-					{interview.questions.map((q: any) => (
-						<div key={q.id} className="glass-surface p-5 space-y-3">
+					{interview.questions.map((q: Record<string, unknown>) => (
+						<div key={q.id as string} className="glass-surface p-5 space-y-3">
 							<div className="flex items-center justify-between">
 								<p className="text-sm font-medium text-neutral-100">
-									Q{q.index + 1}{" "}
-									<span className="text-neutral-400">({q.difficulty})</span>
+									Q{(q.index as number) + 1}{" "}
+									<span className="text-neutral-400">
+										({q.difficulty as string})
+									</span>
 								</p>
 								<span className="text-[11px] font-mono text-neutral-400">
-									{q.score ?? "-"}/5
+									{(q.score as number) ?? "-"}/5
 								</span>
 							</div>
 							<p className="text-sm whitespace-pre-line text-neutral-200">
-								{q.question}
+								{q.question as string}
 							</p>
 							<div className="space-y-1">
 								<p className="text-[10px] uppercase tracking-wide text-neutral-400">
 									Answer
 								</p>
 								<p className="text-sm whitespace-pre-line bg-white/5 soft-border rounded p-3 min-h-[40px] text-neutral-100">
-									{q.answer || "(no answer)"}
+									{(q.answer as string) || "(no answer)"}
 								</p>
 							</div>
 						</div>
