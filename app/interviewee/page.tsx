@@ -117,6 +117,8 @@ export default function IntervieweePage() {
 	const [parseError, setParseError] = useState<string | null>(null);
 	const [remainingMs, setRemainingMs] = useState<number | null>(null);
 	const [answerDraft, setAnswerDraft] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [selectedTopic, setSelectedTopic] = useState(
 		interview.topic || "fullstack"
 	);
@@ -300,13 +302,22 @@ export default function IntervieweePage() {
 			current.remainingMs ??
 			current.allottedMs - (Date.now() - (current.startedAt || Date.now()));
 		setRemainingMs(remaining);
-		if (remaining <= 0) {
-			if (!current.answer && answerDraft) {
-				dispatch(recordAnswer({ index: current.index, answer: answerDraft }));
+		if (remaining <= 0 && !isSubmitting) {
+			// Auto-advance when time is up, but only if not already submitting
+			const finalAnswer = answerDraft.trim() || "No answer provided";
+			if (!current.answer) {
+				dispatch(recordAnswer({ index: current.index, answer: finalAnswer }));
 			}
 			dispatch(advanceQuestion());
 		}
-	}, [interview.status, current?.remainingMs, answerDraft, current, dispatch]);
+	}, [
+		interview.status,
+		current?.remainingMs,
+		answerDraft,
+		current,
+		dispatch,
+		isSubmitting,
+	]);
 
 	// Load question text & reset draft ONLY when question index changes
 	useEffect(() => {
@@ -320,6 +331,7 @@ export default function IntervieweePage() {
 			}
 			// Preserve existing recorded answer if navigating back (future feature), else clear.
 			setAnswerDraft(q?.answer || "");
+			setIsSubmitting(false); // Reset submission state for new question
 			lastQuestionIndexRef.current = idx;
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -377,26 +389,75 @@ export default function IntervieweePage() {
 
 	const submitAnswer = async () => {
 		if (!current) return;
-		if (answerDraft) {
-			dispatch(recordAnswer({ index: current.index, answer: answerDraft }));
-		}
-		// Evaluate
+		if (isSubmitting) return; // Prevent double submission
+
+		setIsSubmitting(true);
+		setSubmitError(null); // Clear any previous errors
+
 		try {
-			const res = await fetch("/api/interview/evaluate-answer", {
-				method: "POST",
-				body: JSON.stringify({
-					question: current.question,
-					answer: answerDraft,
-				}),
-			});
-			if (res.ok) {
-				const data = await res.json();
-				dispatch(recordScore({ index: current.index, score: data.score }));
+			// Always record the answer, even if empty
+			const finalAnswer = answerDraft.trim() || "No answer provided";
+			dispatch(recordAnswer({ index: current.index, answer: finalAnswer }));
+
+			// Only evaluate if we have a valid question
+			if (current.question && current.question.trim()) {
+				try {
+					const res = await fetch("/api/interview/evaluate-answer", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							question: current.question,
+							answer: finalAnswer,
+						}),
+					});
+
+					if (res.ok) {
+						const data = await res.json();
+						if (typeof data.score === "number") {
+							dispatch(
+								recordScore({ index: current.index, score: data.score })
+							);
+						}
+					} else {
+						console.error(
+							"Failed to evaluate answer:",
+							res.status,
+							res.statusText
+						);
+						setSubmitError(
+							`Evaluation failed (${res.status}), but your answer was saved.`
+						);
+						// Give a default score if evaluation fails
+						dispatch(recordScore({ index: current.index, score: 1 }));
+					}
+				} catch (evaluationError) {
+					console.error("Error evaluating answer:", evaluationError);
+					setSubmitError(
+						"Network error during evaluation, but your answer was saved."
+					);
+					// Give a default score if evaluation fails
+					dispatch(recordScore({ index: current.index, score: 1 }));
+				}
+			} else {
+				// No question to evaluate against, give default score
+				setSubmitError(
+					"Question not loaded properly, but your answer was saved."
+				);
+				dispatch(recordScore({ index: current.index, score: 0 }));
 			}
-		} catch (e) {
-			console.error(e);
+
+			// Always advance to next question
+			dispatch(advanceQuestion());
+		} catch (error) {
+			console.error("Error in submitAnswer:", error);
+			setSubmitError("Unexpected error, but continuing to next question.");
+			// Even if there's an error, try to advance
+			dispatch(advanceQuestion());
+		} finally {
+			setIsSubmitting(false);
 		}
-		dispatch(advanceQuestion());
 	};
 
 	const onFile = async (file: File) => {
@@ -951,7 +1012,6 @@ export default function IntervieweePage() {
 										</span>
 									</div>
 								</div>
-
 								<div className="p-6 rounded-xl bg-gradient-to-br from-white/8 to-white/3 border border-white/10">
 									<p className="text-[var(--foreground)] text-base leading-relaxed whitespace-pre-line">
 										{current.question || (
@@ -964,7 +1024,6 @@ export default function IntervieweePage() {
 										)}
 									</p>
 								</div>
-
 								<div className="space-y-3">
 									<label className="text-sm font-medium text-[var(--foreground)] flex items-center gap-2">
 										<svg
@@ -985,11 +1044,30 @@ export default function IntervieweePage() {
 									<textarea
 										className="w-full h-40 rounded-xl border border-white/10 bg-white/5 text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] p-4 text-base focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/60 focus:border-[var(--accent)]/50 focus:bg-white/8 transition-all resize-none"
 										value={answerDraft}
-										onChange={(e) => setAnswerDraft(e.target.value)}
+										onChange={(e) => {
+											setAnswerDraft(e.target.value);
+											if (submitError) setSubmitError(null); // Clear error when user starts typing
+										}}
 										placeholder="Type your answer here... Be detailed and explain your reasoning."
 									/>
-								</div>
 
+									{submitError && (
+										<div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+											<svg
+												className="w-4 h-4 text-amber-400"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+											>
+												<path
+													fillRule="evenodd"
+													d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+													clipRule="evenodd"
+												/>
+											</svg>
+											<p className="text-sm text-amber-400">{submitError}</p>
+										</div>
+									)}
+								</div>{" "}
 								<div className="flex items-center justify-between pt-4 border-t border-white/10">
 									<div className="flex items-center gap-2 text-xs text-[var(--foreground-muted)]">
 										<svg
@@ -1009,10 +1087,17 @@ export default function IntervieweePage() {
 									</div>
 									<Button
 										onClick={submitAnswer}
-										disabled={!answerDraft.trim()}
+										disabled={isSubmitting || !current?.question}
 										className="btn-accent px-6 h-10 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
 									>
-										Submit Answer →
+										{isSubmitting ? (
+											<>
+												<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+												Submitting...
+											</>
+										) : (
+											"Submit Answer →"
+										)}
 									</Button>
 								</div>
 							</div>
