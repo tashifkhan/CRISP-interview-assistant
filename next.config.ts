@@ -14,20 +14,7 @@ const nextConfig: NextConfig = {
     
     return config;
   },
-  // Enable serving static files for PDF.js worker
-  async headers() {
-    return [
-      {
-        source: '/pdf.worker.min.mjs',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/javascript',
-          },
-        ],
-      },
-    ];
-  },
+  // No custom headers needed for local PDF worker; using CDN instead
 };
 
 export default nextConfig;

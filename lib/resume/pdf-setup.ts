@@ -14,17 +14,7 @@ export function configurePdfWorker(): boolean {
   }
 
   try {
-    // Method 1: Use local worker file
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-    isConfigured = true;
-    console.log('✅ PDF.js configured with local worker');
-    return true;
-  } catch (error) {
-    console.warn('❌ Local worker setup failed:', error);
-  }
-
-  try {
-    // Method 2: Use CDN worker
+    // Use CDN worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
     isConfigured = true;
     console.log('✅ PDF.js configured with CDN worker');
