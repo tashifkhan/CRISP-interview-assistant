@@ -59,7 +59,8 @@ const SelectScrollDownButton = React.forwardRef<
 		<ChevronDown className="h-4 w-4" />
 	</SelectPrimitive.ScrollDownButton>
 ));
-SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName;
+SelectScrollDownButton.displayName =
+	SelectPrimitive.ScrollDownButton.displayName;
 
 const SelectContent = React.forwardRef<
 	HTMLDivElement,
@@ -81,7 +82,8 @@ const SelectContent = React.forwardRef<
 			<SelectPrimitive.Viewport
 				className={cn(
 					"p-1",
-					position === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+					position === "popper" &&
+						"h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
 				)}
 			>
 				{children}
@@ -135,7 +137,10 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<SelectPrimitive.Separator
 		ref={ref}
-		className={cn("-mx-1 my-1 h-px bg-neutral-200 dark:bg-neutral-700", className)}
+		className={cn(
+			"-mx-1 my-1 h-px bg-neutral-200 dark:bg-neutral-700",
+			className
+		)}
 		{...props}
 	/>
 ));
