@@ -16,17 +16,58 @@ export function makeChatModel() {
 
 // QUESTION GENERATION
 const questionPrompt = new PromptTemplate({
-  template: `Generate ONE concise technical interview question for a {role} candidate. Difficulty: {difficulty}. Index: {index}. Return only the question.`,
-  inputVariables: ['role','difficulty','index']
+  template: `Generate ONE concise technical interview question for a {role} candidate focusing on {topic}.
+  
+Difficulty: {difficulty}. Question Index: {index}.
+
+{resumeContext}
+
+Requirements:
+- Tailor the question based on the candidate's background if resume information is provided
+- Focus on {topic} technologies and concepts
+- Make it appropriate for {difficulty} difficulty level
+- Return only the question, no explanations
+
+Question:`,
+  inputVariables: ['role', 'difficulty', 'index', 'topic', 'resumeContext']
 });
 
-export async function lcGenerateQuestion(params: { role: string; difficulty: string; index: number }) {
+export async function lcGenerateQuestion(params: { 
+  role: string; 
+  difficulty: string; 
+  index: number;
+  topic?: string;
+  resumeData?: any;
+}) {
   if (!process.env.GEMINI_API_KEY) {
     return { question: 'Fallback: Explain event loop vs call stack in JS.', source: 'mock' as const };
   }
+
+  // Prepare resume context
+  let resumeContext = '';
+  if (params.resumeData) {
+    const { name, skills, experience, education, summary } = params.resumeData;
+    resumeContext = `Candidate Background:
+${name ? `Name: ${name}` : ''}
+${skills?.length ? `Skills: ${skills.join(', ')}` : ''}
+${experience?.length ? `Experience: ${experience.slice(0, 3).join('; ')}` : ''}
+${education?.length ? `Education: ${education.slice(0, 2).join('; ')}` : ''}
+${summary ? `Summary: ${summary}` : ''}
+
+Tailor the question to leverage their background and skills.`;
+  }
+
   const model = makeChatModel();
   const chain = questionPrompt.pipe(model);
-  const res = await chain.invoke(params);
+  const invokeParams = {
+    role: params.role,
+    difficulty: params.difficulty,
+    index: params.index,
+    topic: params.topic || 'general technical',
+    resumeContext: resumeContext || 'No resume information provided. Generate a general question.'
+  };
+  
+  const res = await chain.invoke(invokeParams);
   const txt = typeof res === 'string' ? res : (res as { content?: { toString?: () => string } | Array<{ text?: string }> | string }).content?.toString?.() || (res as { content?: Array<{ text?: string }> }).content?.[0]?.text || '';
   return { question: txt.trim().split('\n')[0].slice(0, 300), source: 'llm' as const };
 }

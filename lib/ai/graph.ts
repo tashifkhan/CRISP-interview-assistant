@@ -17,13 +17,21 @@ export type GraphState = {
   currentIndex: number;
   finalScore?: number;
   summary?: string;
+  topic?: string;
+  resumeData?: any;
 };
 
 // Node: generate question if missing
 export const nodeGenerate = async (state: GraphState): Promise<GraphState> => {
   const q = state.questions[state.currentIndex];
   if (!q.question) {
-    const res = await lcGenerateQuestion({ role: state.role, difficulty: q.difficulty, index: q.index });
+    const res = await lcGenerateQuestion({ 
+      role: state.role, 
+      difficulty: q.difficulty, 
+      index: q.index,
+      topic: (state as any).topic,
+      resumeData: (state as any).resumeData
+    });
     q.question = res.question;
   }
   return { ...state };

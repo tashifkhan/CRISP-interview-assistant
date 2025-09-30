@@ -26,6 +26,8 @@ export interface CandidateProfile {
 export interface InterviewState {
   sessionId?: string;
   role: string;
+  topic?: string;
+  resumeData?: any;
   status: 'idle' | 'collecting-profile' | 'in-progress' | 'completed';
   currentQuestionIndex: number; // -1 before start
   questions: QuestionRecord[];
@@ -37,7 +39,8 @@ export interface InterviewState {
 }
 
 const initialState: InterviewState = {
-  role: 'Full Stack (React/Node)',
+  role: 'Full Stack Developer',
+  topic: 'fullstack',
   status: 'idle',
   currentQuestionIndex: -1,
   questions: [],
@@ -61,6 +64,12 @@ export const interviewSlice = createSlice({
     },
     markResumeExtracted(state) {
       state.profile.resumeExtracted = true;
+    },
+    setTopic(state, action: PayloadAction<string>) {
+      state.topic = action.payload;
+    },
+    setResumeData(state, action: PayloadAction<any>) {
+      state.resumeData = action.payload;
     },
     beginInterview(state) {
       if (state.questions.length === 0) {
@@ -129,6 +138,8 @@ export const {
   startProfileCollection,
   setProfileField,
   markResumeExtracted,
+  setTopic,
+  setResumeData,
   beginInterview,
   setQuestionText,
   recordAnswer,

@@ -2,7 +2,13 @@ import { lcGenerateQuestion, lcEvaluateAnswer, lcSummarize } from './chain';
 import { buildInterviewGraph, runGraphStep, type GraphState, type InterviewQuestion } from './graph';
 
 // Shared types (lightweight to avoid circular deps)
-export interface GenerateQuestionArgs { index: number; difficulty: string; role: string; }
+export interface GenerateQuestionArgs { 
+  index: number; 
+  difficulty: string; 
+  role: string; 
+  topic?: string;
+  resumeData?: any;
+}
 export interface EvaluateAnswerArgs { question: string; answer: string; }
 export interface SummarizeArgs { questions: InterviewQuestion[]; finalScore: number; role?: string; }
 
@@ -57,6 +63,8 @@ export async function generateQuestion(args: GenerateQuestionArgs) {
       const graph = buildInterviewGraph();
       const state: GraphState = {
         role: args.role,
+        topic: args.topic,
+        resumeData: args.resumeData,
         questions: [
           {
             index: args.index,
@@ -76,7 +84,13 @@ export async function generateQuestion(args: GenerateQuestionArgs) {
         return { question: generated.slice(0, 300), source: 'llm' as const };
       }
     }
-    return await lcGenerateQuestion({ role: args.role, difficulty: args.difficulty, index: args.index });
+    return await lcGenerateQuestion({ 
+      role: args.role, 
+      difficulty: args.difficulty, 
+      index: args.index,
+      topic: args.topic,
+      resumeData: args.resumeData
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : undefined;
     return fallback('fallback', message);
