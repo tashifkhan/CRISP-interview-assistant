@@ -126,17 +126,33 @@ export default function IntervieweePage() {
 			: undefined;
 
 	const [showResumeModal, setShowResumeModal] = useState(false);
+	const [sessionChecked, setSessionChecked] = useState(false);
 
-	// Detect unfinished session on mount
+	// Detect unfinished session only once when component mounts
 	useEffect(() => {
-		if (
-			interview.status === "in-progress" ||
-			interview.status === "collecting-profile" ||
-			interview.status === "generating-questions"
-		) {
-			setShowResumeModal(true);
+		// Only check once per component lifecycle
+		if (!sessionChecked) {
+			setSessionChecked(true);
+
+			// Check if there's an existing session
+			if (
+				interview.status === "in-progress" ||
+				interview.status === "collecting-profile" ||
+				interview.status === "generating-questions"
+			) {
+				// Additional validation: only show if there's meaningful session data
+				const hasMeaningfulSession =
+					interview.sessionId ||
+					interview.questions.length > 0 ||
+					interview.profile.resumeExtracted ||
+					interview.resumeData;
+
+				if (hasMeaningfulSession) {
+					setShowResumeModal(true);
+				}
+			}
 		}
-	}, [interview.status]);
+	}, []); // Empty dependency array - only run once on mount
 
 	// Stable question fetch (avoid depending on the entire questions array so typing isn't reset)
 	const fetchQuestion = useCallback(
@@ -442,7 +458,9 @@ export default function IntervieweePage() {
 						<div className="flex gap-3">
 							<Button
 								variant="ghost"
-								onClick={() => setShowResumeModal(false)}
+								onClick={() => {
+									setShowResumeModal(false);
+								}}
 								className="flex-1 btn-accent"
 							>
 								Continue Session
@@ -453,6 +471,7 @@ export default function IntervieweePage() {
 									dispatch(resetInterview());
 									await resetPersistedStore();
 									setShowResumeModal(false);
+									setSessionChecked(false); // Reset to allow detection on new sessions
 								}}
 								className="flex-1 border-white/20 hover:bg-white/10 text-[var(--foreground)]"
 							>
@@ -491,101 +510,105 @@ export default function IntervieweePage() {
 			</div>
 
 			{/* Step 1: Resume Upload */}
-			<Card className="glass-surface overflow-hidden">
-				<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
-					<div className="flex items-center gap-3">
-						<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
-							1
-						</div>
-						<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
-							Upload Resume
-						</CardTitle>
-					</div>
-				</CardHeader>
-				<CardContent className="p-8 space-y-6">
-					<div className="text-center space-y-4">
-						<div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center">
-							<svg
-								className="w-8 h-8 text-[var(--foreground-muted)]"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={1.5}
-									d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-								/>
-							</svg>
-						</div>
-						<div className="space-y-2">
-							<p className="text-[var(--foreground)] font-medium">
-								Drop your resume here or click to browse
-							</p>
-							<p className="text-sm text-[var(--foreground-muted)]">
-								Supports PDF and DOCX files up to 10MB
-							</p>
-						</div>
-					</div>
+			{interview.status !== "collecting-profile" &&
+				interview.status !== "generating-questions" &&
+				interview.status !== "in-progress" && (
+					<Card className="glass-surface overflow-hidden">
+						<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
+							<div className="flex items-center gap-3">
+								<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
+									1
+								</div>
+								<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
+									Upload Resume
+								</CardTitle>
+							</div>
+						</CardHeader>
+						<CardContent className="p-8 space-y-6">
+							<div className="text-center space-y-4">
+								<div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center">
+									<svg
+										className="w-8 h-8 text-[var(--foreground-muted)]"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={1.5}
+											d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+										/>
+									</svg>
+								</div>
+								<div className="space-y-2">
+									<p className="text-[var(--foreground)] font-medium">
+										Drop your resume here or click to browse
+									</p>
+									<p className="text-sm text-[var(--foreground-muted)]">
+										Supports PDF and DOCX files up to 10MB
+									</p>
+								</div>
+							</div>
 
-					<Input
-						type="file"
-						accept="application/pdf,.pdf,.docx"
-						disabled={uploading}
-						onChange={(e) => {
-							const f = e.target.files?.[0];
-							if (f) onFile(f);
-						}}
-						className="h-14 text-base cursor-pointer file:cursor-pointer file:border-0 file:bg-[var(--accent)] file:text-[var(--accent-foreground)] file:px-6 file:py-2 file:rounded-lg file:font-medium file:mr-4 hover:file:bg-[var(--accent)]/90"
-					/>
+							<Input
+								type="file"
+								accept="application/pdf,.pdf,.docx"
+								disabled={uploading}
+								onChange={(e) => {
+									const f = e.target.files?.[0];
+									if (f) onFile(f);
+								}}
+								className="h-14 text-base cursor-pointer file:cursor-pointer file:border-0 file:bg-[var(--accent)] file:text-[var(--accent-foreground)] file:px-6 file:py-2 file:rounded-lg file:font-medium file:mr-4 hover:file:bg-[var(--accent)]/90"
+							/>
 
-					{uploading && (
-						<div className="flex items-center gap-3 p-4 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20">
-							<div className="w-5 h-5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
-							<p className="text-sm text-[var(--accent)] font-medium">
-								Parsing resume...
-							</p>
-						</div>
-					)}
+							{uploading && (
+								<div className="flex items-center gap-3 p-4 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20">
+									<div className="w-5 h-5 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
+									<p className="text-sm text-[var(--accent)] font-medium">
+										Parsing resume...
+									</p>
+								</div>
+							)}
 
-					{parseError && (
-						<div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-							<svg
-								className="w-5 h-5 text-red-400"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path
-									fillRule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-									clipRule="evenodd"
-								/>
-							</svg>
-							<p className="text-sm text-red-400">{parseError}</p>
-						</div>
-					)}
+							{parseError && (
+								<div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+									<svg
+										className="w-5 h-5 text-red-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<path
+											fillRule="evenodd"
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+											clipRule="evenodd"
+										/>
+									</svg>
+									<p className="text-sm text-red-400">{parseError}</p>
+								</div>
+							)}
 
-					{interview.profile.resumeExtracted && (
-						<div className="flex items-center gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-							<svg
-								className="w-5 h-5 text-emerald-400"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path
-									fillRule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-									clipRule="evenodd"
-								/>
-							</svg>
-							<p className="text-sm text-emerald-400 font-medium">
-								Resume successfully parsed!
-							</p>
-						</div>
-					)}
-				</CardContent>
-			</Card>
+							{interview.profile.resumeExtracted && (
+								<div className="flex items-center gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+									<svg
+										className="w-5 h-5 text-emerald-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<path
+											fillRule="evenodd"
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+											clipRule="evenodd"
+										/>
+									</svg>
+									<p className="text-sm text-emerald-400 font-medium">
+										Resume successfully parsed!
+									</p>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				)}
 
 			{/* Step 2: Profile Confirmation */}
 			{interview.status === "collecting-profile" && (
