@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/mongodb';
 import { CompletedInterviewSchema } from '@/lib/types/interview';

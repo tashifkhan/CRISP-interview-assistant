@@ -1,8 +1,6 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
-import { PromptTemplate } from '@langchain/core/prompts';
-import { StructuredOutputParser } from '@langchain/core/output_parsers';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 import { configurePdfWorker, resetPdfWorker } from './pdf-setup';
 
@@ -39,61 +37,53 @@ const resumeSchema = z.object({
   github: z.string().optional(),
 });
 
-const resumeParser = StructuredOutputParser.fromZodSchema(resumeSchema);
+function getGeminiApiKey() {
+  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
+}
 
-const resumePrompt = new PromptTemplate({
-  template: `You are an expert resume parser. Extract comprehensive structured information from this resume text. 
-
-Return a JSON object with the following fields (extract as much detail as possible):
-
-- name: Full name of the person
-- email: Email address  
-- phone: Phone number (format consistently)
-- experience: Array of work experience entries - for each job include "Company Name | Job Title | Duration | Key responsibilities/achievements"
-- skills: Array of ALL technical skills mentioned (programming languages, frameworks, tools, technologies, databases, cloud platforms, etc.)
-- education: Array of educational qualifications including "Institution | Degree | Field of Study | Year/Duration"
-- summary: Comprehensive professional summary highlighting key strengths and expertise (3-4 sentences)
-- location: Current location/address/city
-- linkedIn: LinkedIn profile URL if mentioned
-- github: GitHub profile URL or username if mentioned
-
-Be thorough in extracting skills - look for:
-- Programming languages (JavaScript, Python, Java, etc.)
-- Frameworks and libraries (React, Node.js, Express, etc.)
-- Databases (MySQL, MongoDB, PostgreSQL, etc.)
-- Cloud platforms (AWS, Azure, GCP, etc.)
-- Tools and technologies (Docker, Kubernetes, Git, etc.)
-- Methodologies (Agile, Scrum, etc.)
-
-Resume text:
-{resumeText}
-
-Format: {format}`,
-  inputVariables: ['resumeText'],
-  partialVariables: { format: resumeParser.getFormatInstructions() }
-});
-
-function makeChatModel() {
-  if (!process.env.GEMINI_API_KEY) throw new Error('Missing GEMINI_API_KEY');
-  return new ChatGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    model: process.env.CRISP_GEMINI_MODEL || 'gemini-1.5-flash',
-    temperature: 0.1, // Low temperature for structured extraction
-  });
+function makeGenAIModel() {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) throw new Error('Missing Gemini API Key');
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: process.env.CRISP_GEMINI_MODEL || 'gemini-1.5-flash', generationConfig: { temperature: 0.1 } });
+  return model;
 }
 
 // Gemini-based resume parsing with enhanced extraction
 async function parseResumeWithGemini(text: string): Promise<Partial<ParsedResumeData>> {
   try {
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
       throw new Error('GEMINI_API_KEY not available');
     }
 
-    const model = makeChatModel();
-    const chain = resumePrompt.pipe(model).pipe(resumeParser);
-    
-    const result = await chain.invoke({ resumeText: text });
-    
+    const model = makeGenAIModel();
+    const prompt = `You are an expert resume parser. Extract comprehensive structured information from this resume text.
+
+Return a JSON object with the following fields (extract as much detail as possible):
+
+- name
+- email
+- phone
+- experience (array of strings: Company | Title | Duration | Key responsibilities)
+- skills (array of strings)
+- education (array of strings: Institution | Degree | Field | Year/Duration)
+- summary (3-4 sentences)
+- location
+- linkedIn
+- github
+
+Resume text:
+${text}
+
+Return only JSON.`;
+
+    const gen = await model.generateContent(prompt);
+    const raw = gen.response?.text() || '{}';
+    const cleaned = raw.replace(/^```json/i,'').replace(/```$/,'').trim();
+    const parsed = JSON.parse(cleaned);
+    const result = resumeSchema.parse(parsed);
+
     // Enhance the result with better structured data
     const enhanced = {
       ...result,

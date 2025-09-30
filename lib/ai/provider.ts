@@ -1,5 +1,4 @@
 import { lcGenerateQuestion, lcEvaluateAnswer, lcSummarize } from './chain';
-import { buildInterviewGraph, runGraphStep, type GraphState, type InterviewQuestion } from './graph';
 
 // Shared types (lightweight to avoid circular deps)
 export interface GenerateQuestionArgs { 
@@ -10,20 +9,23 @@ export interface GenerateQuestionArgs {
   resumeData?: Record<string, unknown>;
 }
 export interface EvaluateAnswerArgs { question: string; answer: string; }
-export interface SummarizeArgs { questions: InterviewQuestion[]; finalScore: number; role?: string; }
+export interface SummarizeArgs { questions: Array<{ index: number; difficulty: string; question?: string; answer?: string; score?: number; }>; finalScore: number; role?: string; }
 
 // Debug logging helper
 function debugLog(message: string, data?: any) {
   console.log(`[Provider Debug] ${message}`, data ? JSON.stringify(data, null, 2) : '');
 }
 
+function getGeminiApiKey() {
+  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
+}
+
 function hasGemini() {
-  const hasKey = !!process.env.GEMINI_API_KEY;
+  const hasKey = !!getGeminiApiKey();
   debugLog('Checking Gemini API key availability:', hasKey);
   return hasKey;
 }
-const preferGraph = process.env.AI_ENGINE === 'graph';
-debugLog('AI Engine preference:', { preferGraph, aiEngine: process.env.AI_ENGINE });
+debugLog('AI Engine preference removed; using direct SDK calls only.');
 
 // --- Mock / heuristic helpers ---
 const mockBank: Record<string, string[]> = {
@@ -73,44 +75,20 @@ export async function generateQuestion(args: GenerateQuestionArgs) {
   };
   
   if (!hasGemini()) {
-    debugLog('No Gemini API key, using mock');
-    return fallback('mock');
+    const error = 'Missing Gemini API Key (GEMINI_API_KEY or GOOGLE_API_KEY)';
+    debugLog('No Gemini API key, using mock', error);
+    return fallback('mock', error);
   }
   
   try {
-    if (preferGraph) {
-      debugLog('Using graph approach for question generation');
-      const graph = buildInterviewGraph();
-      const state: GraphState = {
-        role: args.role,
-        topic: args.topic,
-        resumeData: args.resumeData,
-        questions: [
-          {
-            index: args.index,
-            difficulty: args.difficulty,
-            question: '',
-            answer: undefined,
-            score: undefined,
-          }
-        ],
-        currentIndex: 0,
-        finalScore: undefined,
-        summary: undefined,
-      };
-      const next = await runGraphStep(graph, state, { runEvaluate: false, runSummary: false });
-      const generated = next.questions?.[0]?.question;
-      if (generated) {
-        return { question: generated.slice(0, 300), source: 'llm' as const };
-      }
-    }
-    return await lcGenerateQuestion({ 
+    const res = await lcGenerateQuestion({ 
       role: args.role, 
       difficulty: args.difficulty, 
       index: args.index,
       topic: args.topic,
       resumeData: args.resumeData
     });
+    return res
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : undefined;
     return fallback('fallback', message);
@@ -126,29 +104,6 @@ export async function evaluateAnswer(args: EvaluateAnswerArgs) {
   }
   
   try {
-    if (preferGraph) {
-      debugLog('Using graph approach for answer evaluation');
-      const graph = buildInterviewGraph();
-      const state: GraphState = {
-        role: 'unspecified',
-        questions: [
-          {
-            index: 0,
-            difficulty: 'medium',
-            question: args.question,
-            answer: args.answer,
-          }
-        ],
-        currentIndex: 0,
-        finalScore: undefined,
-        summary: undefined,
-      };
-      const next = await runGraphStep(graph, state, { runGenerate: false, runSummary: false });
-      const scored = next.questions?.[0];
-      if (typeof scored?.score === 'number') {
-        return { score: scored.score, feedback: scored.feedback || 'LLM scored via graph.' };
-      }
-    }
     return await lcEvaluateAnswer({ question: args.question, answer: args.answer });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : undefined;
@@ -173,21 +128,6 @@ export async function summarizeInterview(args: SummarizeArgs) {
   }
   
   try {
-    if (preferGraph) {
-      debugLog('Using graph approach for interview summary');
-      const graph = buildInterviewGraph();
-      const state: GraphState = {
-        role: args.role || 'General candidate',
-        questions: args.questions.map((q) => ({ ...q })),
-        currentIndex: Math.max(0, (args.questions.length || 1) - 1),
-        finalScore,
-        summary: undefined,
-      };
-      const next = await runGraphStep(graph, state, { runGenerate: false, runEvaluate: false, runSummary: true });
-      if (next.summary) {
-        return { finalScore: next.finalScore ?? finalScore, summary: next.summary, source: 'llm' as const };
-      }
-    }
     return await lcSummarize({ questions: args.questions, finalScore });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : undefined;

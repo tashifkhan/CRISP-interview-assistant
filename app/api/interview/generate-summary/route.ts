@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { summarizeInterview } from '@/lib/ai/provider';
 import { InterviewQuestion } from '@/lib/ai/graph';
