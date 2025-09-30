@@ -2,10 +2,12 @@
 
 An AI-powered technical interview assistant built with Next.js (App Router) that provides:
 
-- Interviewee chat interface (resume upload, timed AI Q&A, local persistence)
-- Interviewer dashboard (scores, summaries, searchable/sortable list, detailed transcripts)
-- Hybrid persistence (IndexedDB for in-progress sessions, MongoDB for completed interviews)
-- AI (Gemini) powered question generation, scoring, summarization (with mock/heuristic fallback)
+- **Interviewee Interface**: Smart resume upload with AI-powered parsing, timed Q&A sessions, local state persistence
+- **Enhanced Question Generation**: All questions generated upfront before timer starts for seamless experience
+- **Gemini AI Integration**: Advanced resume parsing, question generation, and answer evaluation using Google's Gemini API
+- **Interviewer Dashboard**: Comprehensive scores, summaries, searchable candidate list, detailed transcripts
+- **Hybrid Persistence**: IndexedDB for in-progress sessions, MongoDB for completed interviews
+- **Comprehensive Resume Processing**: Extracts skills, experience, education, and professional summaries with retry logic
 
 ## High-Level Architecture
 
@@ -18,14 +20,14 @@ An AI-powered technical interview assistant built with Next.js (App Router) that
 
 ## Interview Flow
 
-1. Resume upload & parsing (PDF required, DOCX optional)
-2. Collect Name / Email / Phone if missing
-3. Timed 6-question session (Role: Full Stack React/Node): 2 Easy (20s) → 2 Medium (60s) → 2 Hard (120s)
-4. Auto-submit on timer expiry
-5. AI scoring per question
-6. AI final summary & aggregate score
-7. Persist completed record to MongoDB
-8. Dashboard displays ranked candidates
+1. **Resume Upload & AI Parsing**: PDF/DOCX upload with Gemini-powered extraction of skills, experience, and professional details
+2. **Profile Collection**: Auto-fill name/email/phone from resume, select interview focus area
+3. **Question Generation Phase**: All 6 questions generated upfront using AI based on resume and role
+4. **Timed Interview Session**: 6 personalized questions (2 Easy/20s → 2 Medium/60s → 2 Hard/120s)
+5. **Real-time Evaluation**: AI scoring per question with detailed feedback
+6. **Comprehensive Summary**: AI-generated performance summary and aggregate score
+7. **Data Persistence**: Completed interviews saved to MongoDB for dashboard access
+8. **Interviewer Dashboard**: Searchable candidate rankings with detailed transcripts
 
 ## Roadmap (Phases)
 

@@ -23,7 +23,7 @@
 		"mongodb": "^6.9.0",
 		"nanoid": "^5.0.7",
 		"next": "15.5.4",
-		"pdfjs-dist": "^4.4.168",
+		"pdfjs-dist": "^4.10.38",
 		"react": "19.1.0",
 		"react-dom": "19.1.0",
 		"react-redux": "^9.2.0",

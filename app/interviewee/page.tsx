@@ -10,6 +10,8 @@ import {
 	setResumeData,
 	startProfileCollection,
 	beginInterview,
+	startActualInterview,
+	setAllQuestionsGenerated,
 	setQuestionText,
 	recordAnswer,
 	recordScore,
@@ -53,6 +55,8 @@ interface InterviewState {
 	finalScore?: number;
 	createdAt?: number;
 	completedAt?: number;
+	questionsGenerating?: boolean;
+	questionsGenerated?: boolean;
 }
 
 // Topic options for interview
@@ -127,7 +131,8 @@ export default function IntervieweePage() {
 	useEffect(() => {
 		if (
 			interview.status === "in-progress" ||
-			interview.status === "collecting-profile"
+			interview.status === "collecting-profile" ||
+			interview.status === "generating-questions"
 		) {
 			setShowResumeModal(true);
 		}
@@ -166,6 +171,101 @@ export default function IntervieweePage() {
 
 	// Track last question index to only reset when moving forward, not on timer ticks
 	const lastQuestionIndexRef = useRef<number | null>(null);
+
+	// Generate all questions when interview begins
+	useEffect(() => {
+		if (
+			interview.status === "generating-questions" &&
+			interview.questionsGenerating
+		) {
+			const generateAllQuestions = async () => {
+				try {
+					const response = await fetch(
+						"/api/interview/generate-all-questions",
+						{
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								questions: interview.questions.map((q) => ({
+									id: q.id,
+									index: q.index,
+									difficulty: q.difficulty,
+								})),
+								role: interview.role,
+								topic: interview.topic || selectedTopic,
+								resumeData: interview.resumeData,
+							}),
+						}
+					);
+
+					if (response.ok) {
+						const data = await response.json();
+						if (data.success && data.questions) {
+							// Update all questions with generated text
+							data.questions.forEach(
+								(q: { id: string; index: number; question: string }) => {
+									dispatch(
+										setQuestionText({ index: q.index, text: q.question })
+									);
+								}
+							);
+						}
+					} else {
+						// Fallback to individual question generation
+						const promises = interview.questions.map(async (q) => {
+							if (!q.question) {
+								await fetchQuestion(q.index, q.difficulty);
+							}
+						});
+						await Promise.all(promises);
+					}
+				} catch (error) {
+					console.error("Failed to generate all questions:", error);
+					// Fallback to individual question generation
+					const promises = interview.questions.map(async (q) => {
+						if (!q.question) {
+							await fetchQuestion(q.index, q.difficulty);
+						}
+					});
+					await Promise.all(promises);
+				} finally {
+					dispatch(setAllQuestionsGenerated());
+				}
+			};
+			generateAllQuestions();
+		}
+	}, [
+		interview.status,
+		interview.questionsGenerating,
+		interview.questions,
+		fetchQuestion,
+		dispatch,
+		interview.role,
+		interview.topic,
+		interview.resumeData,
+		selectedTopic,
+	]);
+
+	// Start actual interview when all questions are generated
+	useEffect(() => {
+		if (
+			interview.status === "generating-questions" &&
+			interview.questionsGenerated
+		) {
+			// Check if all questions have text
+			const allHaveText = interview.questions.every(
+				(q) => q.question && q.question.trim().length > 0
+			);
+			if (allHaveText) {
+				dispatch(startActualInterview());
+			}
+		}
+	}, [
+		interview.status,
+		interview.questionsGenerated,
+		interview.questions,
+		dispatch,
+	]);
 
 	// Timer effect and auto-advance with persisted remainingMs
 	useEffect(() => {
@@ -576,31 +676,33 @@ export default function IntervieweePage() {
 							</div>
 						</div>
 
-						{/* Resume Extraction Status */}
+						{/* Resume Extraction Status and Details */}
 						{interview.resumeData && (
-							<div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-								<svg
-									className="w-4 h-4 text-green-400"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-								>
-									<path
-										fillRule="evenodd"
-										d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-										clipRule="evenodd"
-									/>
-								</svg>
-								<p className="text-xs text-green-400">
-									Resume processed using{" "}
-									{interview.resumeData.extractionMethod === "gemini"
-										? "AI-powered"
-										: "basic"}{" "}
-									extraction
-									{Array.isArray(interview.resumeData.skills) &&
-										` • ${
-											(interview.resumeData.skills as string[]).length
-										} skills identified`}
-								</p>
+							<div className="space-y-4">
+								<div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+									<svg
+										className="w-4 h-4 text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<path
+											fillRule="evenodd"
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+											clipRule="evenodd"
+										/>
+									</svg>
+									<p className="text-xs text-green-400">
+										Resume processed using{" "}
+										{interview.resumeData.extractionMethod === "gemini"
+											? "AI-powered Gemini"
+											: "basic"}{" "}
+										extraction
+										{Array.isArray(interview.resumeData.skills) &&
+											` • ${
+												(interview.resumeData.skills as string[]).length
+											} skills identified`}
+									</p>
+								</div>
 							</div>
 						)}
 
@@ -644,14 +746,120 @@ export default function IntervieweePage() {
 				</Card>
 			)}
 
-			{/* Step 3: Interview */}
+			{/* Step 3: Generating Questions */}
+			{interview.status === "generating-questions" && (
+				<Card className="glass-surface overflow-hidden">
+					<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
+						<div className="flex items-center gap-3">
+							<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
+								3
+							</div>
+							<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
+								Preparing Your Interview
+							</CardTitle>
+						</div>
+					</CardHeader>
+					<CardContent className="p-8 space-y-6">
+						<div className="text-center space-y-6">
+							<div className="w-20 h-20 mx-auto relative">
+								<div className="absolute inset-0 rounded-full border-4 border-[var(--accent)]/20"></div>
+								<div className="absolute inset-0 rounded-full border-4 border-[var(--accent)] border-t-transparent animate-spin"></div>
+								<div className="absolute inset-3 rounded-full bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/10 flex items-center justify-center">
+									<svg
+										className="w-6 h-6 text-[var(--accent)]"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+										/>
+									</svg>
+								</div>
+							</div>
+
+							<div className="space-y-3">
+								<h3 className="text-xl font-semibold text-[var(--foreground)]">
+									Generating Personalized Questions
+								</h3>
+								<p className="text-[var(--foreground-muted)] leading-relaxed max-w-md mx-auto">
+									Our AI is analyzing your resume and creating tailored
+									interview questions based on your experience and the selected
+									role.
+								</p>
+							</div>
+
+							<div className="space-y-4">
+								<div className="grid grid-cols-3 gap-4">
+									{interview.questions.map((q, idx) => (
+										<div
+											key={q.id}
+											className={`p-3 rounded-lg border transition-all ${
+												q.question && q.question.trim()
+													? "border-emerald-500/30 bg-emerald-500/10"
+													: "border-white/10 bg-white/5"
+											}`}
+										>
+											<div className="flex items-center gap-2">
+												{q.question && q.question.trim() ? (
+													<svg
+														className="w-4 h-4 text-emerald-400"
+														fill="currentColor"
+														viewBox="0 0 20 20"
+													>
+														<path
+															fillRule="evenodd"
+															d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+															clipRule="evenodd"
+														/>
+													</svg>
+												) : (
+													<div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin"></div>
+												)}
+												<span className="text-sm font-medium text-[var(--foreground)]">
+													Q{idx + 1}
+												</span>
+												<span className="text-xs text-[var(--foreground-muted)] capitalize">
+													{q.difficulty}
+												</span>
+											</div>
+										</div>
+									))}
+								</div>
+
+								<div className="flex items-center justify-center gap-2 text-sm text-[var(--foreground-muted)]">
+									<svg
+										className="w-4 h-4"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+										/>
+									</svg>
+									Timer will start once all questions are ready
+								</div>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			)}
+
+			{/* Step 4: Interview */}
 			{interview.status === "in-progress" && (
 				<Card className="glass-surface overflow-hidden">
 					<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-3">
 								<div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent)]/70 flex items-center justify-center text-[var(--accent-foreground)] font-bold text-sm">
-									3
+									4
 								</div>
 								<CardTitle className="text-lg font-semibold text-[var(--foreground)]">
 									Technical Interview
@@ -797,7 +1005,7 @@ export default function IntervieweePage() {
 				</Card>
 			)}
 
-			{/* Step 4: Interview Complete */}
+			{/* Step 5: Interview Complete */}
 			{interview.status === "completed" && (
 				<Card className="glass-surface overflow-hidden">
 					<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">

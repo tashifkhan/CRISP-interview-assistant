@@ -28,7 +28,7 @@ export interface InterviewState {
   role: string;
   topic?: string;
   resumeData?: any;
-  status: 'idle' | 'collecting-profile' | 'in-progress' | 'completed';
+  status: 'idle' | 'collecting-profile' | 'generating-questions' | 'in-progress' | 'completed';
   currentQuestionIndex: number; // -1 before start
   questions: QuestionRecord[];
   profile: CandidateProfile;
@@ -36,6 +36,8 @@ export interface InterviewState {
   summary?: string;
   createdAt?: number;
   completedAt?: number;
+  questionsGenerating?: boolean;
+  questionsGenerated?: boolean;
 }
 
 const initialState: InterviewState = {
@@ -45,6 +47,8 @@ const initialState: InterviewState = {
   currentQuestionIndex: -1,
   questions: [],
   profile: {},
+  questionsGenerating: false,
+  questionsGenerated: false,
 };
 
 const difficultySchedule: Difficulty[] = ['easy','easy','medium','medium','hard','hard'];
@@ -82,9 +86,21 @@ export const interviewSlice = createSlice({
           remainingMs: difficultyTimers[d],
         }));
       }
+      state.status = 'generating-questions';
+      state.questionsGenerating = true;
+      state.questionsGenerated = false;
+      state.currentQuestionIndex = -1; // Don't start timer yet
+    },
+    startActualInterview(state) {
       state.status = 'in-progress';
       state.currentQuestionIndex = 0;
       state.questions[0].startedAt = Date.now();
+      state.questionsGenerating = false;
+      state.questionsGenerated = true;
+    },
+    setAllQuestionsGenerated(state) {
+      state.questionsGenerated = true;
+      state.questionsGenerating = false;
     },
     setQuestionText(state, action: PayloadAction<{ index: number; text: string }>) {
       const q = state.questions[action.payload.index];
@@ -141,6 +157,8 @@ export const {
   setTopic,
   setResumeData,
   beginInterview,
+  startActualInterview,
+  setAllQuestionsGenerated,
   setQuestionText,
   recordAnswer,
   recordScore,
