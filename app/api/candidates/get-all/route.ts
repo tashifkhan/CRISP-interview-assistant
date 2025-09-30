@@ -6,14 +6,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q')?.trim();
     const sortParam = searchParams.get('sort') || '-score';
-    const filter: any = {};
+    const filter: Record<string, unknown> = {};
     if (q) {
       filter.$or = [
         { 'profile.name': { $regex: q, $options: 'i' } },
         { 'profile.email': { $regex: q, $options: 'i' } },
       ];
     }
-    let sort: any = {};
+    let sort: Record<string, 1 | -1> = {};
     switch (sortParam) {
       case 'score':
         sort = { finalScore: 1 };
@@ -35,7 +35,8 @@ export async function GET(req: NextRequest) {
       .limit(200)
       .toArray();
     return NextResponse.json({ candidates: docs });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'An unknown error occurred';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

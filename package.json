@@ -9,13 +9,13 @@
 		"lint": "eslint"
 	},
 	"dependencies": {
-		"@langchain/google-genai": "^0.0.19",
-		"@langchain/langgraph": "^0.2.6",
+		"@langchain/google-genai": "^0.2.18",
+		"@langchain/langgraph": "^0.4.9",
 		"@radix-ui/react-slot": "^1.0.2",
 		"@reduxjs/toolkit": "^2.2.7",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.1",
-		"langchain": "^0.3.1",
+		"langchain": "^0.3.35",
 		"localforage": "^1.10.0",
 		"lucide-react": "^0.453.0",
 		"mammoth": "^1.7.1",
@@ -32,15 +32,15 @@
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
-		"typescript": "^5",
+		"@eslint/eslintrc": "^3",
+		"@tailwindcss/postcss": "^4",
+		"@types/localforage": "^0.0.34",
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
-		"@tailwindcss/postcss": "^4",
-		"tailwindcss": "^4",
 		"eslint": "^9",
 		"eslint-config-next": "15.5.4",
-		"@eslint/eslintrc": "^3",
-		"@types/localforage": "^0.0.34"
+		"tailwindcss": "^4",
+		"typescript": "^5"
 	}
 }

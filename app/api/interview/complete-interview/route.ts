@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
     const db = await getDb();
     await db.collection('interviews').insertOne(parsed.data);
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'An unknown error occurred';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

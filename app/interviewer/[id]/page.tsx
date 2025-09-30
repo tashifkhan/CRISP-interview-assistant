@@ -14,9 +14,10 @@ async function fetchInterview(id: string) {
 export default async function CandidateDetailPage({
 	params,
 }: {
-	params: { id: string };
+	params: Promise<{ id: string }>;
 }) {
-	const interview = await fetchInterview(params.id);
+	const { id } = await params;
+	const interview = await fetchInterview(id);
 	if (!interview) return notFound();
 	return (
 		<div className="space-y-10">

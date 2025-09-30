@@ -1,4 +1,4 @@
-import { StateGraph } from '@langchain/langgraph';
+// Simplified version without StateGraph for build compatibility
 import { lcGenerateQuestion, lcEvaluateAnswer, lcSummarize } from './chain';
 
 export type InterviewQuestion = {
@@ -20,7 +20,7 @@ export type GraphState = {
 };
 
 // Node: generate question if missing
-const nodeGenerate = async (state: GraphState): Promise<GraphState> => {
+export const nodeGenerate = async (state: GraphState): Promise<GraphState> => {
   const q = state.questions[state.currentIndex];
   if (!q.question) {
     const res = await lcGenerateQuestion({ role: state.role, difficulty: q.difficulty, index: q.index });
@@ -30,9 +30,9 @@ const nodeGenerate = async (state: GraphState): Promise<GraphState> => {
 };
 
 // Node: evaluate existing answer
-const nodeEvaluate = async (state: GraphState): Promise<GraphState> => {
+export const nodeEvaluate = async (state: GraphState): Promise<GraphState> => {
   const q = state.questions[state.currentIndex];
-  if (q.answer && q.score == null) {
+  if (q.answer && q.score == null && q.question) {
     const res = await lcEvaluateAnswer({ question: q.question, answer: q.answer });
     q.score = res.score;
     q.feedback = res.feedback;
@@ -41,7 +41,7 @@ const nodeEvaluate = async (state: GraphState): Promise<GraphState> => {
 };
 
 // Node: summary once all scored
-const nodeSummary = async (state: GraphState): Promise<GraphState> => {
+export const nodeSummary = async (state: GraphState): Promise<GraphState> => {
   if (state.currentIndex === state.questions.length - 1) {
     const total = state.questions.reduce((acc, q) => acc + (q.score || 0), 0);
     const max = state.questions.length * 5;
@@ -53,21 +53,13 @@ const nodeSummary = async (state: GraphState): Promise<GraphState> => {
   return { ...state };
 };
 
+// Simplified workflow without StateGraph
 export function buildInterviewGraph() {
-  const builder = new StateGraph<GraphState>({
-    channels: {
-      role: '' as string,
-      questions: [] as InterviewQuestion[],
-      currentIndex: 0,
-      finalScore: undefined as number | undefined,
-      summary: undefined as string | undefined,
+  return {
+    async invoke(state: GraphState) {
+      return state;
     }
-  });
-  builder.addNode('generate', nodeGenerate);
-  builder.addNode('evaluate', nodeEvaluate);
-  builder.addNode('summary', nodeSummary);
-  // For simplicity we won't create edges; we'll invoke nodes manually.
-  return builder.compile();
+  };
 }
 
 type RunOptions = {
@@ -78,9 +70,9 @@ type RunOptions = {
 
 export async function runGraphStep(graph: ReturnType<typeof buildInterviewGraph>, state: GraphState, options: RunOptions = {}) {
   const { runGenerate = true, runEvaluate = true, runSummary = true } = options;
-  let next = await graph.invoke(state); // start (unused in manual pattern)
+  let next = { ...state };
   if (runGenerate) next = await nodeGenerate(next);
   if (runEvaluate) next = await nodeEvaluate(next);
   if (runSummary) next = await nodeSummary(next);
-  return next as GraphState;
+  return next;
 }
