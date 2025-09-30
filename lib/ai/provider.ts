@@ -12,10 +12,18 @@ export interface GenerateQuestionArgs {
 export interface EvaluateAnswerArgs { question: string; answer: string; }
 export interface SummarizeArgs { questions: InterviewQuestion[]; finalScore: number; role?: string; }
 
+// Debug logging helper
+function debugLog(message: string, data?: any) {
+  console.log(`[Provider Debug] ${message}`, data ? JSON.stringify(data, null, 2) : '');
+}
+
 function hasGemini() {
-  return !!process.env.GEMINI_API_KEY;
+  const hasKey = !!process.env.GEMINI_API_KEY;
+  debugLog('Checking Gemini API key availability:', hasKey);
+  return hasKey;
 }
 const preferGraph = process.env.AI_ENGINE === 'graph';
+debugLog('AI Engine preference:', { preferGraph, aiEngine: process.env.AI_ENGINE });
 
 // --- Mock / heuristic helpers ---
 const mockBank: Record<string, string[]> = {
@@ -52,14 +60,26 @@ function heuristicScore(question: string, answer: string) {
 
 // --- Gemini-backed implementations ---
 export async function generateQuestion(args: GenerateQuestionArgs) {
-  const fallback = (source: 'mock' | 'fallback' = 'mock', error?: string) => ({
-    question: mockQuestion(args.index, args.difficulty),
-    source,
-    ...(error ? { error } : {}),
-  });
-  if (!hasGemini()) return fallback('mock');
+  debugLog('generateQuestion called with args:', args);
+  
+  const fallback = (source: 'mock' | 'fallback' = 'mock', error?: string) => {
+    const result = {
+      question: mockQuestion(args.index, args.difficulty),
+      source,
+      ...(error ? { error } : {}),
+    };
+    debugLog('Returning fallback result:', result);
+    return result;
+  };
+  
+  if (!hasGemini()) {
+    debugLog('No Gemini API key, using mock');
+    return fallback('mock');
+  }
+  
   try {
     if (preferGraph) {
+      debugLog('Using graph approach for question generation');
       const graph = buildInterviewGraph();
       const state: GraphState = {
         role: args.role,
@@ -98,9 +118,16 @@ export async function generateQuestion(args: GenerateQuestionArgs) {
 }
 
 export async function evaluateAnswer(args: EvaluateAnswerArgs) {
-  if (!hasGemini()) return heuristicScore(args.question, args.answer);
+  debugLog('evaluateAnswer called with args:', args);
+  
+  if (!hasGemini()) {
+    debugLog('No Gemini API key, using heuristic scoring');
+    return heuristicScore(args.question, args.answer);
+  }
+  
   try {
     if (preferGraph) {
+      debugLog('Using graph approach for answer evaluation');
       const graph = buildInterviewGraph();
       const state: GraphState = {
         role: 'unspecified',
@@ -130,16 +157,24 @@ export async function evaluateAnswer(args: EvaluateAnswerArgs) {
 }
 
 export async function summarizeInterview(args: SummarizeArgs) {
+  debugLog('summarizeInterview called with args:', args);
+  
   const answered = args.questions.filter((q) => q.answer);
   const totalScore = answered.reduce((acc: number, q) => acc + (q.score || 0), 0);
   const maxScore = args.questions.length * 5;
   const finalScore = args.finalScore ?? Math.round((totalScore / maxScore) * 100);
+  
+  debugLog('Summary calculations:', { answered: answered.length, totalScore, maxScore, finalScore });
+  
   if (!hasGemini()) {
+    debugLog('No Gemini API key, using heuristic summary');
     const summary = `Candidate demonstrated ${finalScore >= 70 ? 'strong' : 'developing'} proficiency across full stack concepts. (Heuristic summary)`;
     return { finalScore, summary, source: 'heuristic' as const };
   }
+  
   try {
     if (preferGraph) {
+      debugLog('Using graph approach for interview summary');
       const graph = buildInterviewGraph();
       const state: GraphState = {
         role: args.role || 'General candidate',
