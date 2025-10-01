@@ -1,4 +1,5 @@
 import { lcGenerateQuestion, lcEvaluateAnswer, lcSummarize } from './chain';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Shared types (lightweight to avoid circular deps)
 export interface GenerateQuestionArgs { 
@@ -133,5 +134,89 @@ export async function summarizeInterview(args: SummarizeArgs) {
     const message = error instanceof Error ? error.message : undefined;
     const summary = `Candidate demonstrated ${finalScore >= 70 ? 'strong' : 'developing'} proficiency. (Fallback summary)`;
     return { finalScore, summary, source: 'fallback' as const, ...(message ? { error: message } : {}) };
+  }
+}
+
+// --- Resume parsing via Gemini (PDF/DOCX bytes) ---
+export interface ParsedResumeData {
+  rawText?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  experience?: string[];
+  skills?: string[];
+  education?: string[];
+  summary?: string;
+  location?: string;
+  linkedIn?: string;
+  github?: string;
+  extractionMethod?: 'gemini' | 'fallback';
+}
+
+export async function parseResumeFileGemini(options: { bytes: Uint8Array; mimeType: string; }): Promise<ParsedResumeData> {
+  debugLog('parseResumeFileGemini called with mimeType:', options.mimeType);
+
+  if (!hasGemini()) {
+    throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY or GOOGLE_API_KEY.');
+  }
+
+  const genAI = new GoogleGenerativeAI(getGeminiApiKey());
+  const model = genAI.getGenerativeModel({
+    model: process.env.CRISP_GEMINI_MODEL || 'gemini-1.5-flash',
+    generationConfig: { temperature: 0.1 },
+  });
+
+  const instruction = `You are an expert resume parser. Extract comprehensive structured information from the attached resume file.
+
+Return ONLY valid minified JSON with these fields if available:
+name, email, phone, experience (array of strings), skills (array of strings), education (array of strings), summary, location, linkedIn, github.`;
+
+  try {
+    const res = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: instruction },
+            {
+              inlineData: {
+                mimeType: options.mimeType,
+                data: Buffer.from(options.bytes).toString('base64'),
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const raw = res.response?.text?.() ?? res.response?.candidates?.[0]?.content?.parts?.[0]?.text ?? '{}';
+    const cleaned = (raw || '{}').replace(/^```json/i, '').replace(/```$/i, '').trim();
+    const parsed = JSON.parse(cleaned);
+
+    const ensureArray = (v: unknown): string[] | undefined => {
+      if (v == null) return undefined;
+      if (Array.isArray(v)) return v.map(String);
+      return [String(v)];
+    };
+
+    const result: ParsedResumeData = {
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone,
+      experience: ensureArray(parsed.experience),
+      skills: ensureArray(parsed.skills),
+      education: ensureArray(parsed.education),
+      summary: parsed.summary,
+      location: parsed.location,
+      linkedIn: parsed.linkedIn || parsed.linkedin,
+      github: parsed.github,
+      extractionMethod: 'gemini',
+    };
+
+    return result;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    debugLog('Gemini resume parsing failed:', message);
+    throw new Error(message || 'Gemini resume parsing failed');
   }
 }

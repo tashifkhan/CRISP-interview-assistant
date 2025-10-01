@@ -2,7 +2,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { parseResume } from "@/lib/resume/parse";
 import {
 	markResumeExtracted,
 	setProfileField,
@@ -464,7 +463,18 @@ export default function IntervieweePage() {
 		setUploading(true);
 		setParseError(null);
 		try {
-			const parsed = await parseResume(file);
+			const form = new FormData();
+			form.append("file", file);
+			const res = await fetch("/api/resume/parse", {
+				method: "POST",
+				body: form,
+			});
+			if (!res.ok) {
+				const data = await res.json().catch(() => ({}));
+				throw new Error(data?.error || `Resume parse failed (${res.status})`);
+			}
+			const data = await res.json();
+			const parsed = data.resume || {};
 
 			// Set profile fields
 			if (parsed.name)
