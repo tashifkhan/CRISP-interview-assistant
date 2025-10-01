@@ -19,6 +19,11 @@ export const metadata: Metadata = {
 	title: "CRISP Interview Assistant",
 	description:
 		"AI-powered technical interview assistant with resume parsing, personalized Q&A, and dashboard.",
+	metadataBase: process.env.NEXT_PUBLIC_SITE_URL
+		? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+		: process.env.VERCEL_URL
+		? new URL(`https://${process.env.VERCEL_URL}`)
+		: new URL("http://localhost:3000"),
 	openGraph: {
 		title: "CRISP Interview Assistant",
 		description:

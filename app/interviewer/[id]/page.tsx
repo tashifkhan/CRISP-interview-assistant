@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { headers } from "next/headers";
 
 async function resolveBaseUrl() {
-	// Priority: explicit public base env vars, then Vercel inferred, then request host, then localhost fallback.
 	const explicit =
 		process.env.NEXT_PUBLIC_BASE_URL ||
 		process.env.NEXT_PUBLIC_SITE_URL ||
@@ -17,7 +16,6 @@ async function resolveBaseUrl() {
 	if (vercelUrl) {
 		return vercelUrl.startsWith("http") ? vercelUrl : `https://${vercelUrl}`;
 	}
-	// Use request host (only available at runtime, not during static build)
 	try {
 		const h = await headers();
 		const host = h.get("host");
@@ -31,7 +29,7 @@ async function resolveBaseUrl() {
 	} catch {
 		// ignore
 	}
-	return "http://localhost:3000"; // final fallback for dev
+	return "http://localhost:3000";
 }
 
 async function fetchInterview(id: string) {
