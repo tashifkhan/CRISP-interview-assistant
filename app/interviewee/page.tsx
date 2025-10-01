@@ -583,7 +583,8 @@ export default function IntervieweePage() {
 			{/* Step 1: Resume Upload */}
 			{interview.status !== "collecting-profile" &&
 				interview.status !== "generating-questions" &&
-				interview.status !== "in-progress" && (
+				interview.status !== "in-progress" &&
+				interview.status !== "completed" && (
 					<Card className="glass-surface overflow-hidden">
 						<CardHeader className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10">
 							<div className="flex items-center gap-3">
