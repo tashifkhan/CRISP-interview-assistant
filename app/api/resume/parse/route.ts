@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { parseResumeFileGemini } from '@/lib/ai/provider';
+import { parseResumeFileGemini, parseResumeFromTextGemini } from '@/lib/ai/provider';
+import mammoth from 'mammoth';
 
 export const runtime = 'nodejs';
 
@@ -22,7 +23,18 @@ export async function POST(req: Request) {
     const mimeType: string = file.type || 'application/octet-stream';
 
     const bytes = new Uint8Array(arrayBuffer);
-    const parsed = await parseResumeFileGemini({ bytes, mimeType });
+
+    let parsed;
+    if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword' || file instanceof File && (file.name?.toLowerCase?.().endsWith('.docx') || file.name?.toLowerCase?.().endsWith('.doc'))) {
+      // Extract raw text from DOCX/DOC and send text to Gemini
+      const { value } = await mammoth.extractRawText({ arrayBuffer });
+      parsed = await parseResumeFromTextGemini(value);
+    } else if (mimeType === 'application/pdf' || file instanceof File && file.name?.toLowerCase?.().endsWith('.pdf')) {
+      parsed = await parseResumeFileGemini({ bytes, mimeType: 'application/pdf' });
+    } else {
+      // Try bytes path by default
+      parsed = await parseResumeFileGemini({ bytes, mimeType });
+    }
 
     return NextResponse.json({ success: true, resume: parsed });
   } catch (error: unknown) {

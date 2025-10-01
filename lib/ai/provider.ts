@@ -220,3 +220,60 @@ name, email, phone, experience (array of strings), skills (array of strings), ed
     throw new Error(message || 'Gemini resume parsing failed');
   }
 }
+
+export async function parseResumeFromTextGemini(resumeText: string): Promise<ParsedResumeData> {
+  debugLog('parseResumeFromTextGemini called (text length):', resumeText?.length || 0);
+
+  if (!hasGemini()) {
+    throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY or GOOGLE_API_KEY.');
+  }
+
+  const genAI = new GoogleGenerativeAI(getGeminiApiKey());
+  const model = genAI.getGenerativeModel({
+    model: process.env.CRISP_GEMINI_MODEL || 'gemini-1.5-flash',
+    generationConfig: { temperature: 0.1 },
+  });
+
+  const prompt = `You are an expert resume parser. Extract comprehensive structured information from this resume text.
+
+Return ONLY valid minified JSON with these fields if available:
+name, email, phone, experience (array of strings), skills (array of strings), education (array of strings), summary, location, linkedIn, github.
+
+Resume text follows:
+${resumeText}`;
+
+  try {
+    const res = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
+    const raw = res.response?.text?.() ?? res.response?.candidates?.[0]?.content?.parts?.[0]?.text ?? '{}';
+    const cleaned = (raw || '{}').replace(/^```json/i, '').replace(/```$/i, '').trim();
+    const parsed = JSON.parse(cleaned);
+
+    const ensureArray = (v: unknown): string[] | undefined => {
+      if (v == null) return undefined;
+      if (Array.isArray(v)) return v.map(String);
+      return [String(v)];
+    };
+
+    const result: ParsedResumeData = {
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone,
+      experience: ensureArray(parsed.experience),
+      skills: ensureArray(parsed.skills),
+      education: ensureArray(parsed.education),
+      summary: parsed.summary,
+      location: parsed.location,
+      linkedIn: parsed.linkedIn || parsed.linkedin,
+      github: parsed.github,
+      extractionMethod: 'gemini',
+    };
+
+    return result;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    debugLog('Gemini text resume parsing failed:', message);
+    throw new Error(message || 'Gemini text resume parsing failed');
+  }
+}
