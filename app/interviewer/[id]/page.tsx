@@ -46,9 +46,9 @@ async function fetchInterview(id: string) {
 export default async function CandidateDetailPage({
 	params,
 }: {
-	params: { id: string };
+	params: Promise<{ id: string }>;
 }) {
-	const { id } = params;
+	const { id } = await params;
 	const interview = await fetchInterview(id);
 	if (!interview) return notFound();
 	return (
