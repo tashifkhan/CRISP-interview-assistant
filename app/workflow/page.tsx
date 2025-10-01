@@ -45,43 +45,106 @@ export default function WorkflowFullPage() {
 		}
 	}
 	return (
-		<div className="min-h-screen w-full bg-[#0b1220] text-neutral-100 flex flex-col">
-			<header className="px-6 py-4 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-sm">
-				<h1 className="text-sm font-semibold tracking-wide">
-					CRISP Workflow (Full View)
-				</h1>
-				<div className="flex items-center gap-2">
+		<div className="space-y-8 py-12">
+			<section className="max-w-6xl mx-auto px-6 space-y-6">
+				<div className="space-y-2">
+					<h1 className="text-3xl md:text-4xl font-semibold tracking-tight accent-gradient-text">
+						Workflow Overview
+					</h1>
+					<p className="text-[var(--foreground-muted)] max-w-3xl text-base leading-relaxed">
+						End-to-end flow from resume parsing to AI-driven question
+						generation, evaluation, and interviewer analytics. The diagram below
+						shows the architecture and data flow of the CRISP interview system.
+					</p>
+				</div>
+				<div className="flex items-center justify-end gap-3 pt-1">
 					<button
 						onClick={() => download("svg")}
 						disabled={!svg}
-						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-blue-600 enabled:hover:bg-blue-500 disabled:opacity-40 text-white shadow"
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-blue-600 enabled:hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow"
+						aria-label="Download workflow SVG"
 					>
 						Download SVG
 					</button>
 					<button
 						onClick={() => download("png")}
 						disabled={!svg}
-						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-emerald-600 enabled:hover:bg-emerald-500 disabled:opacity-40 text-white shadow"
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-emerald-600 enabled:hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow"
+						aria-label="Download workflow PNG"
 					>
 						Download PNG
 					</button>
 				</div>
-			</header>
-			<main className="flex-1 p-6 overflow-auto">
-				<div className="max-w-[1800px] mx-auto">
-					<Suspense
-						fallback={
-							<div className="h-[600px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />
-						}
-					>
-						<WorkflowChart
-							onSvg={setSvg}
-							maxHeight=""
-							className="min-h-[600px]"
-						/>
-					</Suspense>
+			</section>
+
+			<section className="max-w-6xl mx-auto px-6">
+				<Suspense
+					fallback={
+						<div className="h-[600px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />
+					}
+				>
+					<WorkflowChart onSvg={setSvg} maxHeight="max-h-[800px]" />
+				</Suspense>
+			</section>
+
+			<section className="max-w-6xl mx-auto px-6 space-y-4">
+				<h2 className="text-xl font-semibold tracking-tight text-neutral-100 flex items-center gap-2">
+					<span className="inline-flex h-2 w-2 rounded-full bg-blue-500" />{" "}
+					Architecture Overview
+				</h2>
+				<div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+					<table className="w-full text-sm">
+						<thead className="bg-white/5 border-b border-white/10">
+							<tr>
+								<th className="text-left px-4 py-3 font-medium text-[var(--foreground)]">
+									Layer
+								</th>
+								<th className="text-left px-4 py-3 font-medium text-[var(--foreground)]">
+									Responsibilities
+								</th>
+							</tr>
+						</thead>
+						<tbody className="divide-y divide-white/10">
+							<tr>
+								<td className="px-4 py-3 font-medium text-[var(--foreground)]">
+									Frontend (Next.js)
+								</td>
+								<td className="px-4 py-3 text-[var(--foreground-muted)]">
+									Upload UI, timers, local state & recovery, interviewer
+									dashboard
+								</td>
+							</tr>
+							<tr>
+								<td className="px-4 py-3 font-medium text-[var(--foreground)]">
+									API Routes
+								</td>
+								<td className="px-4 py-3 text-[var(--foreground-muted)]">
+									LLM orchestration, evaluation, summary generation, MongoDB
+									persistence
+								</td>
+							</tr>
+							<tr>
+								<td className="px-4 py-3 font-medium text-[var(--foreground)]">
+									Local (IndexedDB)
+								</td>
+								<td className="px-4 py-3 text-[var(--foreground-muted)]">
+									In-progress interview state (questions, answers, timers,
+									profile)
+								</td>
+							</tr>
+							<tr>
+								<td className="px-4 py-3 font-medium text-[var(--foreground)]">
+									MongoDB
+								</td>
+								<td className="px-4 py-3 text-[var(--foreground-muted)]">
+									Completed interviews (profile + Q&A + per-question + final
+									summary + scores)
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
-			</main>
+			</section>
 		</div>
 	);
 }
