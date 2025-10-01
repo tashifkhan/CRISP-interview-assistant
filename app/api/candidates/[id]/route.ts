@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/mongodb';
 import { ObjectId } from 'mongodb';
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const db = await getDb();
     // id could be sessionId (string) or ObjectId
     const bySession = await db.collection('interviews').findOne({ sessionId: id });
