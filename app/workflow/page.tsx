@@ -327,7 +327,10 @@ export default function WorkflowFullPage() {
 								<div className="text-xs text-[var(--foreground-muted)] font-mono">
 									<div>id: string</div>
 									<div>index: number</div>
-									<div>difficulty: 'easy'|'medium'|'hard'</div>
+									<div>
+										difficulty:
+										&apos;easy&apos;|&apos;medium&apos;|&apos;hard&apos;
+									</div>
 									<div>question: string</div>
 									<div>answer?: string</div>
 									<div>score?: number (0-5)</div>
@@ -448,7 +451,7 @@ export default function WorkflowFullPage() {
 						</CardHeader>
 						<CardContent className="text-sm text-[var(--foreground-muted)] space-y-2">
 							<p>
-								Questions tailored to candidate's role, topic, and resume
+								Questions tailored to candidate&apos;s role, topic, and resume
 								profile using Gemini context awareness.
 							</p>
 							<p className="text-xs">
