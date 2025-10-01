@@ -76,7 +76,7 @@ ${resumeContext || 'No resume information provided. Generate a general question.
 Requirements:
 - Tailor the question based on the candidate's background if resume information is provided
 - Focus on ${params.topic || 'general technical'} technologies and concepts
-- Make it appropriate for ${params.difficulty} difficulty level
+- Make it appropriate for ${params.difficulty} difficulty level (easy(estimated ansering time 15 seconds), medium(estimated ansering time 30 seconds), hard(estimated ansering time 60 seconds))
 - Return only the question, no explanations
 
 Question:`;
