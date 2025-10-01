@@ -1,11 +1,43 @@
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { headers } from "next/headers";
+
+async function resolveBaseUrl() {
+	// Priority: explicit public base env vars, then Vercel inferred, then request host, then localhost fallback.
+	const explicit =
+		process.env.NEXT_PUBLIC_BASE_URL ||
+		process.env.NEXT_PUBLIC_SITE_URL ||
+		process.env.SITE_URL;
+	if (explicit) {
+		return explicit.startsWith("http")
+			? explicit.replace(/\/$/, "")
+			: `https://${explicit.replace(/\/$/, "")}`;
+	}
+	const vercelUrl = process.env.VERCEL_URL;
+	if (vercelUrl) {
+		return vercelUrl.startsWith("http") ? vercelUrl : `https://${vercelUrl}`;
+	}
+	// Use request host (only available at runtime, not during static build)
+	try {
+		const h = await headers();
+		const host = h.get("host");
+		if (host) {
+			const protocol =
+				host.startsWith("localhost") || host.startsWith("127.0.0.1")
+					? "http"
+					: "https";
+			return `${protocol}://${host}`;
+		}
+	} catch {
+		// ignore
+	}
+	return "http://localhost:3000"; // final fallback for dev
+}
 
 async function fetchInterview(id: string) {
-	const res = await fetch(
-		`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/candidates/${id}`,
-		{ cache: "no-store" }
-	);
+	const base = await resolveBaseUrl();
+	const url = `${base}/api/candidates/${id}`;
+	const res = await fetch(url, { cache: "no-store" });
 	if (!res.ok) return null;
 	const data = await res.json();
 	return data.interview;
@@ -14,9 +46,9 @@ async function fetchInterview(id: string) {
 export default async function CandidateDetailPage({
 	params,
 }: {
-	params: Promise<{ id: string }>;
+	params: { id: string };
 }) {
-	const { id } = await params;
+	const { id } = params;
 	const interview = await fetchInterview(id);
 	if (!interview) return notFound();
 	return (
