@@ -17,19 +17,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing file field' }, { status: 400 });
     }
 
-    // @ts-ignore - Next.js File from formData has arrayBuffer
-    const arrayBuffer: ArrayBuffer = await file.arrayBuffer();
-    // @ts-ignore - Next.js File has type property
-    const mimeType: string = file.type || 'application/octet-stream';
+    // Read binary contents
+    const blob: Blob = file as unknown as Blob;
+    const arrayBuffer: ArrayBuffer = await blob.arrayBuffer();
+    const mimeType: string = (file as any).type || 'application/octet-stream';
+    const filename: string = (file as any).name || '';
 
     const bytes = new Uint8Array(arrayBuffer);
 
     let parsed;
-    if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword' || file instanceof File && (file.name?.toLowerCase?.().endsWith('.docx') || file.name?.toLowerCase?.().endsWith('.doc'))) {
+    const isDocx = mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword' || filename.toLowerCase().endsWith('.docx') || filename.toLowerCase().endsWith('.doc');
+    if (isDocx) {
       // Extract raw text from DOCX/DOC and send text to Gemini
-      const { value } = await mammoth.extractRawText({ arrayBuffer });
+      const { value } = await mammoth.extractRawText({ buffer: Buffer.from(arrayBuffer) });
       parsed = await parseResumeFromTextGemini(value);
-    } else if (mimeType === 'application/pdf' || file instanceof File && file.name?.toLowerCase?.().endsWith('.pdf')) {
+    } else if (mimeType === 'application/pdf' || filename.toLowerCase().endsWith('.pdf')) {
       parsed = await parseResumeFileGemini({ bytes, mimeType: 'application/pdf' });
     } else {
       // Try bytes path by default
