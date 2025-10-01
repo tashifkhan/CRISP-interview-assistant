@@ -1,101 +1,229 @@
 # CRISP Interview Assistant
 
-An AI-powered technical interview assistant built with Next.js (App Router) that provides:
+An AI-powered technical interview assistant built on Next.js App Router that streamlines candidate screening with resume parsing, personalized question generation, timed sessions, AI evaluation, and an interviewer dashboard.
 
-- **Interviewee Interface**: Smart resume upload with AI-powered parsing, timed Q&A sessions, local state persistence
-- **Enhanced Question Generation**: All questions generated upfront before timer starts for seamless experience
-- **Gemini AI Integration**: Advanced resume parsing, question generation, and answer evaluation using Google's Gemini API
-- **Interviewer Dashboard**: Comprehensive scores, summaries, searchable candidate list, detailed transcripts
-- **Hybrid Persistence**: IndexedDB for in-progress sessions, MongoDB for completed interviews
-- **Comprehensive Resume Processing**: Extracts skills, experience, education, and professional summaries with retry logic
+## Features
 
-## High-Level Architecture
+- **Interviewee experience**: Resume upload (PDF/DOC/DOCX), AI-powered parsing, role/topic selection, timed Q&A, autosave/recovery
+- **Question generation**: Generates all questions up-front for a smooth timer experience
+- **AI integration (Gemini)**: Resume parsing, question generation, answer evaluation, performance summary
+- **Dashboard**: Searchable candidate list, ranking, details page with transcript and scores
+- **Persistence**: IndexedDB for in-progress sessions; MongoDB for completed interviews
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router), React 19
+- **State**: Redux Toolkit + redux-persist (IndexedDB via localforage)
+- **UI**: Tailwind CSS 4, shadcn-style primitives, Radix UI, lucide-react
+- **AI**: `@google/generative-ai` (Gemini), LangChain primitives in `lib/ai/chain.ts`
+- **DB**: MongoDB (official Node driver)
+- **Parsing**: `mammoth` for DOC/DOCX, Gemini for PDF/DOCX understanding
+- **Types/Schemas**: TypeScript + Zod
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ (recommended 20+)
+- A MongoDB database (Atlas or local)
+- Optional: Google Gemini API key for full AI features
+
+### Installation
+
+```bash
+pnpm install  # or npm install / bun install
+```
+
+### Environment Variables
+
+Create `.env.local` in the project root:
+
+```ini
+# Google Gemini (recommended for production)
+GEMINI_API_KEY=your_key_here
+# or
+GOOGLE_API_KEY=your_key_here
+
+# Optional model override (defaults to gemini-1.5-flash)
+CRISP_GEMINI_MODEL=gemini-1.5-pro
+
+# MongoDB connection
+MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>/<db>?retryWrites=true&w=majority
+MONGODB_DB=crisp
+```
+
+Behavior without a Gemini key:
+
+- Real endpoints continue to work with a deterministic mock question bank, heuristic scoring, and fallback summaries.
+
+### Scripts
+
+```bash
+pnpm dev     # run the Next.js dev server
+pnpm build   # production build
+pnpm start   # start production server
+pnpm lint    # run eslint
+```
+
+### Run the App
+
+```bash
+pnpm dev
+# open http://localhost:3000
+```
+
+## Architecture Overview
 
 | Layer              | Responsibilities                                                             |
 | ------------------ | ---------------------------------------------------------------------------- |
-| Frontend (Next.js) | Chat UI, timers, resume parsing, local state & recovery, dashboard views     |
+| Frontend (Next.js) | Upload UI, timers, local state & recovery, interviewer dashboard             |
 | API Routes         | LLM orchestration, evaluation, summary generation, MongoDB persistence       |
 | Local (IndexedDB)  | In-progress interview state (questions, answers, timers, profile)            |
 | MongoDB            | Completed interviews (profile + Q&A + per-question + final summary + scores) |
 
-## Interview Flow
-
-1. **Resume Upload & AI Parsing**: PDF/DOCX upload with Gemini-powered extraction of skills, experience, and professional details
-2. **Profile Collection**: Auto-fill name/email/phone from resume, select interview focus area
-3. **Question Generation Phase**: All 6 questions generated upfront using AI based on resume and role
-4. **Timed Interview Session**: 6 personalized questions (2 Easy/20s → 2 Medium/60s → 2 Hard/120s)
-5. **Real-time Evaluation**: AI scoring per question with detailed feedback
-6. **Comprehensive Summary**: AI-generated performance summary and aggregate score
-7. **Data Persistence**: Completed interviews saved to MongoDB for dashboard access
-8. **Interviewer Dashboard**: Searchable candidate rankings with detailed transcripts
-
-## Roadmap (Phases)
-
-1. UI Scaffolding (navigation, base pages, design system w/ shadcn)
-2. Resume upload & parsing + profile collection logic
-3. MongoDB integration & basic persistence routes
-4. AI question generation + evaluation + timers integration
-5. Local persistence + recovery modal + completion push to DB
-6. Dashboard search/sort + detailed transcript view
-7. Polish (prompt engineering, accessibility, visual refinement, tests)
-
-## Development
-
-Install dependencies and run dev server:
-
-```
-pnpm install # or npm install / bun install
-pnpm dev
+```mermaid
+flowchart TD
+  A[Interviewee UI] -- Resume PDF/DOCX --> B[/Resume Parse API/]
+  B -->|Gemini parse| C[Parsed Profile/Skills]
+  A -- Start Interview --> D[/Generate-All-Questions API/]
+  D -->|6 tailored Qs| E[Timed Q&A]
+  E -- submit answer --> F[/Evaluate-Answer API/]
+  E -- complete --> G[/Generate-Summary API/]
+  G --> H[Final score + summary]
+  H --> I[/Complete-Interview API/]
+  I --> J[(MongoDB)]
+  K[Interviewer Dashboard] -->|search/view| L[/Candidates API/]
+  L --> J
+  K -->|view details| M[/Candidate by ID API/]
+  M --> J
 ```
 
-## Status
+## User Workflow
 
-Implemented:
+1. Upload resume (PDF/DOC/DOCX) → AI parses candidate details for autofill
+2. Choose role/topic → app generates 6 questions up-front
+3. Timed interview: 2 Easy → 2 Medium → 2 Hard with autosave
+4. Each answer is scored by AI, then a final summary is produced
+5. On completion, the interview is stored in MongoDB and appears in the dashboard
 
-- Resume upload & parsing (PDF/DOCX) with naive entity extraction
-- Local persisted interview state with timers & auto-advance (2 Easy → 2 Medium → 2 Hard)
-- AI provider abstraction using Google Gemini (falls back to deterministic mock if no key)
-- Heuristic + LLM (Gemini) answer evaluation (score 0–5) & final summary
-- Completion persistence to MongoDB (schema validated via Zod)
-- Interviewer dashboard (list, search, sort, detail transcript page `/interviewer/[id]`)
-- Unfinished session detection modal & recovery
+## UI Pages
 
-Upcoming polish / enhancements:
+- `app/page.tsx`: Landing and navigation
+- `app/interviewee/page.tsx`: Interviewee experience (upload, profile, Q&A, timers)
+- `app/interviewer/page.tsx`: Dashboard list/search/sort of completed interviews
+- `app/interviewer/[id]/page.tsx`: Candidate details with transcript, per-question scores, summary
+- `app/workflow/page.tsx`: Visual workflow/diagram
 
-- Improved prompt engineering and rubric scoring
-- Retry & offline resilience UI
-- Test suite (parsing, reducers, API schemas)
-- Accessibility pass & visual refinements
+## API Reference
 
-## Enabling AI (Google Gemini)
+All routes use POST unless noted and return JSON.
 
-Add to `.env.local`:
+### Resume
 
+- `POST /api/resume/parse`
+  - Content-Type: `multipart/form-data` with `file`
+  - Response: `{ success: true, resume: { name?, email?, phone?, skills?, experience?, education?, summary?, linkedIn?, github?, extractionMethod } }`
+
+### Interview
+
+- `POST /api/interview/generate-question`
+
+  - Body: `{ index: number, difficulty: 'easy'|'medium'|'hard', role: string, topic?: string, resumeData?: object }`
+  - Response: `{ question: string, source: 'llm'|'mock'|'fallback', error? }`
+
+- `POST /api/interview/generate-all-questions`
+
+  - Body: `{ questions: Array<{ id: string, index: number, difficulty: 'easy'|'medium'|'hard' }>, role: string, topic?: string, resumeData?: object }`
+  - Response: `{ success: boolean, questions: Array<{ id: string, index: number, question?: string, source?: string, error?: string }> }`
+
+- `POST /api/interview/evaluate-answer`
+
+  - Body: `{ question: string, answer: string }`
+  - Response: `{ score: 0..5, feedback: string }` (includes `source: 'fallback'` if Gemini failed)
+
+- `POST /api/interview/generate-summary`
+
+  - Body: `{ questions: InterviewQuestion[] }` where `InterviewQuestion` includes `index, difficulty, answer?, score?`
+  - Response: `{ finalScore: number, summary: string, source: 'llm'|'heuristic'|'fallback', error? }`
+
+- `POST /api/interview/complete-interview`
+  - Body: `CompletedInterview` (validated via Zod)
+  - Response: `{ ok: true }`
+
+### Candidates
+
+- `GET /api/candidates/get-all?q=<text>&sort=<score|-score|created|-created>`
+
+  - Response: `{ candidates: Array<{ _id, sessionId, profile:{name,email}, finalScore, summary, createdAt }> }`
+
+- `GET /api/candidates/:id`
+  - `:id` can be `sessionId` or MongoDB `_id`
+  - Response: `{ interview }` or 404
+
+## Data Models
+
+`CompletedInterview` (stored in MongoDB):
+
+```ts
+type CompletedInterview = {
+	sessionId: string;
+	role: string;
+	profile: {
+		name?: string;
+		email?: string;
+		phone?: string;
+		resumeExtracted?: boolean;
+	};
+	questions: Array<{
+		id: string;
+		index: number;
+		difficulty: "easy" | "medium" | "hard";
+		question: string;
+		answer?: string;
+		score?: number;
+		allottedMs: number;
+		startedAt?: number;
+		submittedAt?: number;
+	}>;
+	finalScore: number; // 0-100
+	summary: string;
+	createdAt: number; // epoch ms
+	completedAt: number; // epoch ms
+	version: 1;
+};
 ```
-GEMINI_API_KEY=your_key_here
-# Optional: override default fast model (gemini-1.5-flash)
-CRISP_GEMINI_MODEL=gemini-1.5-pro
-# Optional: switch engine (direct | chain). 'chain' uses LangChain; direct uses raw SDK.
-AI_ENGINE=chain
+
+## Development Notes
+
+- AI provider logic lives in `lib/ai/provider.ts`. Without an API key, it falls back to mocks/heuristics.
+- LangChain helpers in `lib/ai/chain.ts` are used behind the provider; prompts are concise and retried with backoff.
+- MongoDB helper in `lib/db/mongodb.ts` exposes `getDb()` and requires `MONGODB_URI`/`MONGODB_DB`.
+
+## Deployment
+
+- Works well on Vercel. Set required env vars in the project settings.
+- Ensure your MongoDB IP allowlist permits Vercel egress or use Atlas with peering/SRV.
+- For local production run:
+
+```bash
+pnpm build && pnpm start
 ```
 
-Behavior:
+## Troubleshooting
 
-- If a Gemini key is present: real question generation, scoring, summarization.
-- If absent: deterministic mock question bank + heuristic scoring & summary.
+- **Missing Gemini key**: AI falls back to mock questions and heuristic scoring. Set `GEMINI_API_KEY` (or `GOOGLE_API_KEY`).
+- **MongoDB connection errors**: Verify `MONGODB_URI` and `MONGODB_DB`; check network allowlist and SRV correctness.
+- **PDF/DOCX parse issues**: If DOCX parsing misbehaves, the server extracts raw text via `mammoth` and sends that to Gemini. Validate the file type and size.
+- **429/5xx from Gemini**: Provider includes simple retries with exponential backoff; transient errors will auto-retry.
+- **Type validation failures**: `complete-interview` validates payloads via Zod—inspect `issues` in the 400 response.
 
-All AI logic is centralized in `lib/ai/provider.ts` for future multi-provider expansion.
+## Acknowledgements
 
-### LangChain / LangGraph
+- Google Gemini via `@google/generative-ai`
+- LangChain / LangGraph primitives
+- Radix UI, shadcn-style components, lucide-react
+- MongoDB Node driver
 
-- Chains implemented in `lib/ai/chain.ts` (question, evaluation, summary).
-- Experimental graph scaffold in `lib/ai/graph.ts` (currently invoked manually; ready for future adaptive flows).
-- Toggle with `AI_ENGINE=chain` to route through LangChain; omit or set to `direct` for lightweight provider calls.
+## License
 
-## Candidate Detail Page
-
-Navigate from dashboard list (each candidate links to `/interviewer/{id}`) to view:
-
-- Profile & session metadata
-- Full question list with per-question score
-- Final summary & overall score
+This project is released under the MIT License. See `LICENSE` for details.
