@@ -31,7 +31,7 @@ An AI-powered technical interview assistant built on Next.js App Router that str
 ### Installation
 
 ```bash
-pnpm install  # or npm install / bun install
+bun install  # or npm install / bun install
 ```
 
 ### Environment Variables
@@ -59,16 +59,16 @@ Behavior without a Gemini key:
 ### Scripts
 
 ```bash
-pnpm dev     # run the Next.js dev server
-pnpm build   # production build
-pnpm start   # start production server
-pnpm lint    # run eslint
+bun dev         # run the Next.js dev server
+bun run build   # production build
+bun start       # start production server
+bun lint        # run eslint
 ```
 
 ### Run the App
 
 ```bash
-pnpm dev
+bun dev
 # open http://localhost:3000
 ```
 
@@ -206,7 +206,7 @@ type CompletedInterview = {
 - For local production run:
 
 ```bash
-pnpm build && pnpm start
+bun build && bun start
 ```
 
 ## Troubleshooting
