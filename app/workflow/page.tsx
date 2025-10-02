@@ -47,10 +47,11 @@ export default function WorkflowFullPage() {
 		}
 	}
 	return (
-		<div className="space-y-12 py-12">
-			<section className="max-w-6xl mx-auto px-6 space-y-6">
-				<div className="space-y-3">
-					<h1 className="text-3xl md:text-4xl font-semibold tracking-tight accent-gradient-text">
+		<div className="space-y-16 py-14">
+			<section className="max-w-6xl mx-auto px-6 space-y-8">
+				<div className="space-y-4 relative">
+					<span className="pointer-events-none absolute -top-8 right-10 h-40 w-40 rounded-full blur-3xl bg-[radial-gradient(circle_at_60%_40%,rgba(0,173,181,0.4),transparent_65%)] opacity-50" />
+					<h1 className="text-3xl md:text-4xl font-bold tracking-tight accent-gradient-text">
 						System Architecture & Data Flow
 					</h1>
 					<p className="text-[var(--foreground-muted)] max-w-3xl text-base leading-relaxed">
@@ -60,31 +61,29 @@ export default function WorkflowFullPage() {
 						and MongoDB.
 					</p>
 					<div className="flex flex-wrap gap-2 pt-2">
-						<Badge variant="outline" className="text-xs">
-							Next.js 15 App Router
-						</Badge>
-						<Badge variant="outline" className="text-xs">
-							React 19
-						</Badge>
-						<Badge variant="outline" className="text-xs">
-							Google Gemini (gemini-1.5-flash)
-						</Badge>
-						<Badge variant="outline" className="text-xs">
-							Redux Toolkit + IndexedDB
-						</Badge>
-						<Badge variant="outline" className="text-xs">
-							MongoDB
-						</Badge>
-						<Badge variant="outline" className="text-xs">
-							TypeScript + Zod
-						</Badge>
+						{[
+							"Next.js 15 App Router",
+							"React 19",
+							"Google Gemini",
+							"Redux Toolkit + IndexedDB",
+							"MongoDB",
+							"TypeScript + Zod",
+						].map((l) => (
+							<Badge
+								key={l}
+								variant="outline"
+								className="text-[10px] tracking-wide"
+							>
+								{l}
+							</Badge>
+						))}
 					</div>
 				</div>
 				<div className="flex items-center justify-end gap-3 pt-1">
 					<button
 						onClick={() => download("svg")}
 						disabled={!svg}
-						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-blue-600 enabled:hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow"
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium btn-accent disabled:opacity-40 disabled:cursor-not-allowed shadow"
 						aria-label="Download workflow SVG"
 					>
 						Download SVG
@@ -92,7 +91,7 @@ export default function WorkflowFullPage() {
 					<button
 						onClick={() => download("png")}
 						disabled={!svg}
-						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-emerald-600 enabled:hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow"
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-emerald-600/80 hover:bg-emerald-500 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow transition-colors"
 						aria-label="Download workflow PNG"
 					>
 						Download PNG
@@ -103,19 +102,19 @@ export default function WorkflowFullPage() {
 			<section className="max-w-6xl mx-auto px-6">
 				<Suspense
 					fallback={
-						<div className="h-[600px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />
+						<div className="h-[600px] w-full rounded-xl border border-white/10 bg-white/5 animate-pulse" />
 					}
 				>
 					<WorkflowChart onSvg={setSvg} maxHeight="max-h-[800px]" />
 				</Suspense>
 			</section>
 
-			<section className="max-w-6xl mx-auto px-6 space-y-4">
-				<h2 className="text-xl font-semibold tracking-tight text-neutral-100 flex items-center gap-2">
-					<span className="inline-flex h-2 w-2 rounded-full bg-blue-500" />{" "}
+			<section className="max-w-6xl mx-auto px-6 space-y-5">
+				<h2 className="text-xl font-semibold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+					<span className="inline-flex h-2 w-2 rounded-full bg-[var(--accent)]" />{" "}
 					Architecture Layers
 				</h2>
-				<div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+				<div className="rounded-xl border border-white/10 bg-gradient-to-br from-white/8 to-white/4 overflow-hidden">
 					<table className="w-full text-sm">
 						<thead className="bg-white/5 border-b border-white/10">
 							<tr>
@@ -363,13 +362,13 @@ export default function WorkflowFullPage() {
 				</Card>
 			</section>
 
-			<section className="max-w-6xl mx-auto px-6 space-y-4">
-				<h2 className="text-xl font-semibold tracking-tight text-neutral-100 flex items-center gap-2">
+			<section className="max-w-6xl mx-auto px-6 space-y-5">
+				<h2 className="text-xl font-semibold tracking-tight text-[var(--foreground)] flex items-center gap-2">
 					<span className="inline-flex h-2 w-2 rounded-full bg-orange-500" />{" "}
 					Technical Features
 				</h2>
 				<div className="grid md:grid-cols-3 gap-4">
-					<Card className="bg-white/5 border-white/10">
+					<Card className="bg-gradient-to-br from-white/8 to-white/3 border-white/10">
 						<CardHeader>
 							<CardTitle className="text-base">State Persistence</CardTitle>
 						</CardHeader>
@@ -463,13 +462,13 @@ export default function WorkflowFullPage() {
 				</div>
 			</section>
 
-			<section className="max-w-6xl mx-auto px-6 space-y-4">
-				<h2 className="text-xl font-semibold tracking-tight text-neutral-100 flex items-center gap-2">
+			<section className="max-w-6xl mx-auto px-6 space-y-5">
+				<h2 className="text-xl font-semibold tracking-tight text-[var(--foreground)] flex items-center gap-2">
 					<span className="inline-flex h-2 w-2 rounded-full bg-red-500" />{" "}
 					Performance & Scalability
 				</h2>
 				<div className="grid md:grid-cols-2 gap-4">
-					<Card className="bg-white/5 border-white/10">
+					<Card className="bg-gradient-to-br from-white/8 to-white/3 border-white/10">
 						<CardHeader>
 							<CardTitle className="text-base">Client-Side First</CardTitle>
 						</CardHeader>
@@ -499,12 +498,12 @@ export default function WorkflowFullPage() {
 				</div>
 			</section>
 
-			<section className="max-w-6xl mx-auto px-6 space-y-4">
-				<h2 className="text-xl font-semibold tracking-tight text-neutral-100 flex items-center gap-2">
+			<section className="max-w-6xl mx-auto px-6 space-y-5 pb-6">
+				<h2 className="text-xl font-semibold tracking-tight text-[var(--foreground)] flex items-center gap-2">
 					<span className="inline-flex h-2 w-2 rounded-full bg-yellow-500" />{" "}
 					Environment Configuration
 				</h2>
-				<Card className="bg-white/5 border-white/10">
+				<Card className="bg-gradient-to-br from-white/8 to-white/3 border-white/10">
 					<CardContent className="pt-6">
 						<div className="space-y-3 text-sm">
 							<div className="grid md:grid-cols-2 gap-4">

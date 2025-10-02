@@ -19,43 +19,47 @@ export default function Home() {
 		window.open("/workflow", "_blank");
 	}
 	return (
-		<div className="space-y-20 py-12">
-			<section className="relative max-w-6xl mx-auto px-6 text-center space-y-8">
-				<h1 className="text-4xl md:text-6xl font-semibold tracking-tight accent-gradient-text">
+		<div className="space-y-24 py-14">
+			{/* Hero */}
+			<section className="relative max-w-6xl mx-auto px-6 text-center space-y-10">
+				<div className="absolute inset-0 pointer-events-none">
+					<div className="mx-auto h-40 w-40 rounded-full blur-3xl opacity-40 bg-[radial-gradient(circle_at_50%_50%,rgba(0,173,181,0.55),transparent_70%)]" />
+				</div>
+				<h1 className="text-4xl md:text-6xl font-bold tracking-tight accent-gradient-text relative">
 					CRISP · AI Interview Assistant
 				</h1>
-				<p className="text-[var(--foreground-muted)] max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+				<p className="text-[var(--foreground-muted)] max-w-2xl mx-auto text-base md:text-lg leading-relaxed relative">
 					Structured, adaptive technical interviews powered by Gemini +
-					LangChain. Timed Q&A, resume parsing, auto-scoring and instant
-					summaries— resilient by design.
+					LangChain. Timed Q&A, resume parsing, auto-scoring & instant summaries
+					— resilient by design.
 				</p>
-				<div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-[10px] md:text-[11px] font-medium">
+				<div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-[10px] md:text-[11px] font-medium relative">
 					<span className="px-3 py-1 rounded-full badge-accent">
 						Gemini + LangChain
 					</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+					<span className="px-3 py-1 rounded-full bg-white/6 text-[var(--foreground-muted)] border border-white/10">
 						Timed
 					</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+					<span className="px-3 py-1 rounded-full bg-white/6 text-[var(--foreground-muted)] border border-white/10">
 						Resume Parsing
 					</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+					<span className="px-3 py-1 rounded-full bg-white/6 text-[var(--foreground-muted)] border border-white/10">
 						Adaptive Ready
 					</span>
-					<span className="px-3 py-1 rounded-full bg-white/5 text-[var(--foreground-muted)] border border-white/10">
+					<span className="px-3 py-1 rounded-full bg-white/6 text-[var(--foreground-muted)] border border-white/10">
 						Heuristic Fallback
 					</span>
 				</div>
-				<div className="flex flex-wrap gap-4 justify-center pt-4">
+				<div className="flex flex-wrap gap-4 justify-center pt-2 relative">
 					<Link
 						href="/interviewee"
-						className="px-6 py-3 rounded-lg btn-accent text-sm font-medium shadow hover:shadow-lg transition-shadow"
+						className="px-7 py-3 rounded-xl btn-accent text-sm font-medium shadow hover:shadow-[0_4px_18px_-4px_rgba(0,173,181,0.55)] transition-shadow"
 					>
 						Start Interview
 					</Link>
 					<Link
 						href="/interviewer"
-						className="px-6 py-3 rounded-lg bg-white/7 hover:bg-white/10 text-[var(--foreground)] text-sm font-medium border border-white/12 backdrop-blur-md"
+						className="px-7 py-3 rounded-xl bg-white/7 hover:bg-white/10 text-[var(--foreground)] text-sm font-medium border border-white/12 backdrop-blur-md transition-colors"
 					>
 						View Dashboard
 					</Link>
@@ -63,29 +67,30 @@ export default function Home() {
 						href="https://github.com/tashifkhan/CRISP-interview-assistant"
 						target="_blank"
 						rel="noopener noreferrer"
-						className="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--foreground-muted)] text-sm font-medium border border-white/10"
+						className="px-7 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-[var(--foreground-muted)] text-sm font-medium border border-white/10 transition-colors"
 					>
 						GitHub
 					</a>
 				</div>
 			</section>
 
-			<section className="max-w-6xl mx-auto px-6 space-y-8">
-				<div className="space-y-2">
-					<h2 className="text-xl font-semibold tracking-tight text-neutral-100 flex items-center gap-2">
-						<span className="inline-flex h-2 w-2 rounded-full bg-blue-500" />{" "}
+			{/* Workflow Preview */}
+			<section className="max-w-6xl mx-auto px-6 space-y-10">
+				<div className="space-y-3">
+					<h2 className="text-xl font-semibold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+						<span className="inline-flex h-2 w-2 rounded-full bg-[var(--accent)]" />{" "}
 						Workflow Overview
 					</h2>
-					<p className="text-sm text-neutral-400 max-w-3xl">
-						Below is the end-to-end flow from session recovery and resume
-						parsing to AI-driven question generation, evaluation, and
-						interviewer analytics.
+					<p className="text-sm text-[var(--foreground-muted)] max-w-3xl">
+						Below is the end-to-end flow from session recovery & resume parsing
+						to AI-driven question generation, evaluation, and interviewer
+						analytics.
 					</p>
 				</div>
 				<div className="flex items-center justify-end gap-3 pt-1">
 					<button
 						onClick={openFull}
-						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-white/10 hover:bg-white/20 border border-white/10 text-white"
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-white/8 hover:bg-white/14 border border-white/10 text-[var(--foreground)] transition-colors"
 						aria-label="Open full workflow"
 					>
 						Open Full
@@ -93,7 +98,7 @@ export default function Home() {
 					<button
 						onClick={downloadSvg}
 						disabled={!svg}
-						className="px-3 py-1.5 rounded-md text-[11px] font-medium bg-blue-600 enabled:hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow"
+						className="px-3 py-1.5 rounded-md text-[11px] font-medium btn-accent disabled:opacity-40 disabled:cursor-not-allowed shadow transition"
 						aria-label="Download workflow SVG"
 					>
 						Download SVG
@@ -101,42 +106,43 @@ export default function Home() {
 				</div>
 				<Suspense
 					fallback={
-						<div className="h-[420px] w-full rounded-xl border border-[var(--border-color)] bg-white/5 animate-pulse" />
+						<div className="h-[420px] w-full rounded-xl border border-white/10 bg-white/5 animate-pulse" />
 					}
 				>
 					<WorkflowChart onSvg={setSvg} />
 				</Suspense>
 			</section>
 
-			<section className="max-w-6xl mx-auto px-6 pb-24">
+			{/* Feature Pillars */}
+			<section className="max-w-6xl mx-auto px-6 pb-28">
 				<div className="grid gap-6 md:grid-cols-3">
-					<div className="p-5 rounded-xl border border-[var(--border-color)] bg-white/5 backdrop-blur-sm space-y-2">
-						<h3 className="text-sm font-semibold text-neutral-100">
-							Hybrid Persistence
-						</h3>
-						<p className="text-xs text-neutral-400 leading-relaxed">
-							IndexedDB for in-progress resilience + MongoDB for final records
-							with recovery modal on load.
-						</p>
-					</div>
-					<div className="p-5 rounded-xl border border-[var(--border-color)] bg-white/5 backdrop-blur-sm space-y-2">
-						<h3 className="text-sm font-semibold text-neutral-100">
-							LLM Abstraction
-						</h3>
-						<p className="text-xs text-neutral-400 leading-relaxed">
-							Gemini provider + LangChain chains; heuristic fallbacks ensure
-							graceful degradation.
-						</p>
-					</div>
-					<div className="p-5 rounded-xl border border-[var(--border-color)] bg-white/5 backdrop-blur-sm space-y-2">
-						<h3 className="text-sm font-semibold text-neutral-100">
-							Adaptive Ready
-						</h3>
-						<p className="text-xs text-neutral-400 leading-relaxed">
-							Graph scaffold prepared for dynamic difficulty & response-driven
-							branching.
-						</p>
-					</div>
+					{[
+						{
+							title: "Hybrid Persistence",
+							body: "IndexedDB for in-progress resilience + MongoDB for final records with recovery modal on load.",
+						},
+						{
+							title: "LLM Abstraction",
+							body: "Gemini provider + LangChain chains; heuristic fallbacks ensure graceful degradation.",
+						},
+						{
+							title: "Adaptive Ready",
+							body: "Graph scaffold prepared for dynamic difficulty & response-driven branching.",
+						},
+					].map((f) => (
+						<div
+							key={f.title}
+							className="relative p-5 rounded-xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 backdrop-blur-sm space-y-2 overflow-hidden"
+						>
+							<span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(0,173,181,0.22),transparent_60%)] opacity-50 mix-blend-screen" />
+							<h3 className="text-sm font-semibold text-[var(--foreground)] relative">
+								{f.title}
+							</h3>
+							<p className="text-xs text-[var(--foreground-muted)] leading-relaxed relative">
+								{f.body}
+							</p>
+						</div>
+					))}
 				</div>
 			</section>
 		</div>
