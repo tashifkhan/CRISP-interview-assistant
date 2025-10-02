@@ -178,7 +178,8 @@ export default function InterviewerPage() {
 							</CardTitle>
 							{!loading && (
 								<span className="px-3 py-1 rounded-full bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 text-xs font-medium">
-									{filtered.length} {filtered.length === 1 ? "candidate" : "candidates"}
+									{filtered.length}{" "}
+									{filtered.length === 1 ? "candidate" : "candidates"}
 								</span>
 							)}
 						</div>
@@ -188,7 +189,9 @@ export default function InterviewerPage() {
 							<div className="min-w-[160px]">
 								<Select
 									value={sortBy}
-									onValueChange={(v) => setSortBy(v as "date" | "score" | "name")}
+									onValueChange={(v) =>
+										setSortBy(v as "date" | "score" | "name")
+									}
 								>
 									<SelectTrigger className="bg-white/5 border-white/10 focus:ring-[var(--accent)]/40 focus:border-[var(--accent)]/40">
 										<SelectValue placeholder="Sort" />
@@ -228,7 +231,10 @@ export default function InterviewerPage() {
 					{loading && (
 						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 							{Array.from({ length: 6 }).map((_, i) => (
-								<div key={i} className="h-32 rounded-xl bg-white/5 animate-pulse border border-white/10" />
+								<div
+									key={i}
+									className="h-32 rounded-xl bg-white/5 animate-pulse border border-white/10"
+								/>
 							))}
 						</div>
 					)}
@@ -242,7 +248,12 @@ export default function InterviewerPage() {
 									stroke="currentColor"
 									viewBox="0 0 24 24"
 								>
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={1.5}
+										d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+									/>
 								</svg>
 							</div>
 							<h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
@@ -267,7 +278,11 @@ export default function InterviewerPage() {
 					{!loading && filtered.length > 0 && (
 						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 							{filtered.map((candidate) => (
-								<Link key={candidate.id} href={`/interviewer/${candidate.id}`} className="group block">
+								<Link
+									key={candidate.id}
+									href={`/interviewer/${candidate.id}`}
+									className="group block"
+								>
 									<div className="h-full p-6 rounded-xl border border-white/10 bg-gradient-to-br from-white/8 to-white/3 hover:from-white/12 hover:to-white/6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
 										<div className="flex flex-col h-full">
 											{/* Header */}
@@ -281,8 +296,14 @@ export default function InterviewerPage() {
 													</p>
 												</div>
 												<div className="flex items-center gap-2">
-													<span className="text-lg">{scoreIcon(candidate.finalScore)}</span>
-													<span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${scoreColor(candidate.finalScore)}`}>
+													<span className="text-lg">
+														{scoreIcon(candidate.finalScore)}
+													</span>
+													<span
+														className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${scoreColor(
+															candidate.finalScore
+														)}`}
+													>
 														{candidate.finalScore}
 													</span>
 												</div>
@@ -295,7 +316,10 @@ export default function InterviewerPage() {
 													<span>{candidate.finalScore}/100</span>
 												</div>
 												<div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-													<div className="h-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent)]/60 rounded-full transition-all duration-500" style={{ width: `${candidate.finalScore}%` }} />
+													<div
+														className="h-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent)]/60 rounded-full transition-all duration-500"
+														style={{ width: `${candidate.finalScore}%` }}
+													/>
 												</div>
 											</div>
 
@@ -310,24 +334,56 @@ export default function InterviewerPage() {
 											<div className="flex items-center justify-between pt-3 border-t border-white/10">
 												<div className="flex items-center gap-4 text-xs text-[var(--foreground-muted)]">
 													<span className="flex items-center gap-1">
-														<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+														<svg
+															className="w-3 h-3"
+															fill="none"
+															stroke="currentColor"
+															viewBox="0 0 24 24"
+														>
+															<path
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																strokeWidth={2}
+																d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+															/>
 														</svg>
 														{candidate.questionsCount || 6} questions
 													</span>
 													{candidate.completedAt && (
 														<span className="flex items-center gap-1">
-															<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+															<svg
+																className="w-3 h-3"
+																fill="none"
+																stroke="currentColor"
+																viewBox="0 0 24 24"
+															>
+																<path
+																	strokeLinecap="round"
+																	strokeLinejoin="round"
+																	strokeWidth={2}
+																	d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+																/>
 															</svg>
-															{new Date(candidate.completedAt).toLocaleDateString()}
+															{new Date(
+																candidate.completedAt
+															).toLocaleDateString()}
 														</span>
 													)}
 												</div>
 												<div className="text-xs text-[var(--accent)] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
 													View Details
-													<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+													<svg
+														className="w-3 h-3"
+														fill="none"
+														stroke="currentColor"
+														viewBox="0 0 24 24"
+													>
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															strokeWidth={2}
+															d="M9 5l7 7-7 7"
+														/>
 													</svg>
 												</div>
 											</div>
